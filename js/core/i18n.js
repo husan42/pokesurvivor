@@ -1,4 +1,4 @@
-/* ============ i18n.js — idiomas (español / inglés) ============
+/* ============ i18n.js — idiomas (español / inglés / 繁體中文) ============
  * El juego está escrito en español. Si el idioma es inglés, todo texto que
  * se enseña se traduce con el diccionario de js/data/lang-en.js, sin tener que
  * tocar cada pantalla:
@@ -13,17 +13,17 @@
  *   3. trozos dentro de un texto más largo, sólo palabras enteras
  * Lo que escriben los jugadores (apodos) va marcado con translate="no".
  *
- * Idioma: el elegido en Ajustes; si no, /en/ en la dirección o el del navegador
- * (español si el navegador está en español, inglés en cualquier otro caso).
+ * Idioma: el elegido en Ajustes; si no, /en/ en la dirección; si no, 繁體中文
+ * (versión local). Cada diccionario se registra con su idioma: add(dict, 'en' | 'zh').
  */
 G.I18n = (() => {
   const KEY = 'ps.lang';
   let saved = null;
   try { saved = localStorage.getItem(KEY); } catch (e) { /* nada */ }
   const byPath = /\/en(\/|$)/.test(location.pathname) ? 'en' : null;
-  const nav = ((navigator.languages && navigator.languages[0]) || navigator.language || 'es').toLowerCase();
-  const lang = saved === 'es' || saved === 'en' ? saved : byPath || (nav.startsWith('es') ? 'es' : 'en');
-  document.documentElement.lang = lang;
+  const LANGS = ['es', 'en', 'zh'];
+  const lang = LANGS.includes(saved) ? saved : byPath || 'zh';
+  document.documentElement.lang = lang === 'zh' ? 'zh-Hant-TW' : lang;
 
   const exact = new Map(), exactLow = new Map();
   let patterns = [], frag = null, fragLow = null, fragMap = new Map();
@@ -31,8 +31,10 @@ G.I18n = (() => {
   const L = '\\p{L}\\p{N}';
   const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-  /** Añade traducciones { 'texto en español': 'English text' }. */
-  function add(dict) {
+  /** Añade traducciones { 'texto en español': 'traducción' } del idioma `code`
+   *  (sólo se cargan las del idioma actual). */
+  function add(dict, code = 'en') {
+    if (code !== lang) return;
     const fr = [];
     for (const [es, en] of Object.entries(dict)) {
       if (!en || es === en) continue;
@@ -129,7 +131,7 @@ G.I18n = (() => {
     if (lang === 'es') return;
     // Los enlaces a las páginas de la web, a su versión en inglés.
     const EN_LINKS = { 'guia/': 'en/guide/', 'pokedex/': 'en/pokedex/' };
-    document.querySelectorAll('a[href]').forEach(a => { const h = a.getAttribute('href'); if (EN_LINKS[h]) a.setAttribute('href', EN_LINKS[h]); });
+    if (lang === 'en') document.querySelectorAll('a[href]').forEach(a => { const h = a.getAttribute('href'); if (EN_LINKS[h]) a.setAttribute('href', EN_LINKS[h]); });
     walk(document.body);
     new MutationObserver(ms => {
       for (const m of ms) {

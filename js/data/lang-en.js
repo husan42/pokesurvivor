@@ -535,7 +535,7 @@ G.I18n.add({
   'En iPhone, Safari no deja poner las webs a pantalla completa. Pulsa Compartir y luego "Añadir a pantalla de inicio": abriendo el juego desde ese icono se juega a pantalla completa.':
     'On iPhone, Safari does not let websites go fullscreen. Tap Share and then "Add to Home Screen": opening the game from that icon plays it fullscreen.',
   // ---------------- versión local: Ajustes > Recompensas ----------------
-  'Recompensas': 'Rewards', 'Monedas': 'Coins',
+  'Recompensas': 'Rewards', 'Monedas': 'Coins', 'Fuente china:': 'Chinese font:',
   'Multiplica lo que ganas jugando. Se guarda en este dispositivo y vale desde la próxima recompensa.':
     'Multiplies what you earn by playing. Saved on this device; applies from the next reward.',
   'Monedas al acabar la partida y premios de misiones y logros.': 'Coins at the end of a run, plus mission and achievement rewards.',

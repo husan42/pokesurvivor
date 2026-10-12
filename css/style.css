@@ -15,6 +15,14 @@
   font-weight: 551 900;
   font-display: block;
 }
+/* 中文（繁體中文版）：俐方體 11 號 (OFL, assets/fonts/Cubic_11-OFL.txt)，只用在中日韓字元上。 */
+@font-face {
+  font-family: 'Pixelify';
+  src: url('../assets/fonts/Cubic_11.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: block;
+  unicode-range: U+2E80-2FDF, U+3000-303F, U+3100-312F, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FE30-FE4F, U+FF00-FFEF;
+}
 
 :root {
   --ink: #ffffff;
