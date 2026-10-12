@@ -71,7 +71,7 @@ G.LoginUI = (() => {
       if (G.Signups.closed) G.Signups.check().then(applySignups); else applySignups(true);
     }
     if (!G.DB.storageOk) $('login-err').textContent = 'Este navegador no deja guardar datos: juega como invitado.';
-    $('btn-google').classList.toggle('hidden', G.DB.mode !== 'cloud');
+    $('btn-google').classList.toggle('hidden', G.DB.mode !== 'cloud' || !!(G.FIREBASE_CONFIG || {}).emulator);
     $('login-mode').textContent = modeNote();
     setTimeout(() => $('f-user').focus(), 50);
   }

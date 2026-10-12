@@ -22,6 +22,8 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== location.origin) return;
+  // Versión local: emuladores (server/gateway.js) y la puerta, siempre a la red y sin caché.
+  if (/^\/(identitytoolkit\.googleapis\.com|securetoken\.googleapis\.com|google\.firestore\.v1\.|v1\/|\.ws|\.lp|__gate)/.test(url.pathname)) return;
   const art = /\/assets\/(pokemon|icons|fonts)\//.test(url.pathname);
   if (art) {
     e.respondWith(caches.open(ART).then(async c => {

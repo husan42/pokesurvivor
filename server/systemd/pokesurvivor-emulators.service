@@ -1,0 +1,16 @@
+[Unit]
+Description=PokéSurvivor 本地版：Firebase 模擬器（auth / firestore / database）
+
+[Service]
+WorkingDirectory=/data/hermes/repos/pokesurvivor/server
+ExecStart=/data/hermes/repos/pokesurvivor/server/start-emulators.sh
+# SIGINT 讓模擬器正常關閉並匯出資料（--export-on-exit）
+KillSignal=SIGINT
+# 只送給主程式（firebase CLI），由它匯出後再關閉 Java 模擬器；之後才清掉剩下的程序
+KillMode=mixed
+TimeoutStopSec=90
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

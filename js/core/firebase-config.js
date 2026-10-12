@@ -8,8 +8,17 @@
  *
  * Si se pone a null, el juego funciona en modo local (sólo en el navegador).
  */
-// Versión local sin conexión: sin nube, todo se guarda en el navegador (localStorage).
-G.FIREBASE_CONFIG = null;
+// Versión local: emuladores de Firebase en este servidor (server/start-emulators.sh), a los que
+// se llega por la misma dirección que el juego (server/gateway.js). Abierto con doble clic
+// (file://) no hay servidor: el juego guarda sólo en el navegador.
+G.FIREBASE_CONFIG = /^https?:$/.test(location.protocol) ? {
+  apiKey: 'demo-local',
+  authDomain: location.host,
+  projectId: 'demo-pokesurvivor',
+  appId: 'demo-pokesurvivor',
+  databaseURL: location.origin + '/?ns=demo-pokesurvivor-default-rtdb',
+  emulator: true
+} : null;
 
 /* Ejemplo de cómo debe quedar:
 G.FIREBASE_CONFIG = {

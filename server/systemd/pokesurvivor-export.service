@@ -1,0 +1,9 @@
+[Unit]
+Description=PokéSurvivor 本地版：匯出模擬器資料
+Requisite=pokesurvivor-emulators.service
+After=pokesurvivor-emulators.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/data/hermes/repos/pokesurvivor/server
+ExecStart=/data/hermes/repos/pokesurvivor/server/export-emulators.sh

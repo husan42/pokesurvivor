@@ -1,0 +1,12 @@
+{
+  "name": "pokesurvivor-local-server",
+  "private": true,
+  "description": "Versión local: pasarela (archivos + emuladores de Firebase) y emuladores.",
+  "scripts": {
+    "gateway": "node gateway.js"
+  },
+  "dependencies": {
+    "firebase-tools": "^14.0.0",
+    "http-proxy": "^1.18.1"
+  }
+}

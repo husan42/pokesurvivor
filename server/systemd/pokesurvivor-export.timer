@@ -1,0 +1,9 @@
+[Unit]
+Description=PokéSurvivor 本地版：每 10 分鐘匯出模擬器資料
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=10min
+
+[Install]
+WantedBy=timers.target

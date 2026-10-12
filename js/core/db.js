@@ -29,7 +29,7 @@ G.DB = (() => {
   const K_CLOUD = 'ps.cloud.', K_MIGRATED = 'ps.migrated.';
   const VERSION = 3;
   const START_COINS = 500;
-  const SDK = 'https://www.gstatic.com/firebasejs/13.0.0/';
+  const SDK = 'js/vendor/firebase/13.0.0/';           // versión local: copia del SDK (sin internet)
   const NAME_DOMAIN = 'jugadores.pokesurvivor.net';   // sólo para el email interno
 
   let mode = 'local';       // 'cloud' | 'local'
@@ -303,7 +303,10 @@ G.DB = (() => {
   // eran decenas de miles de escrituras por hora); lo que cuesta algo
   // (gacha, mejoras), a los 30 s. La copia local se guarda siempre al momento (y se fusiona con la
   // nube al volver a entrar), y al ocultar o cerrar la pestaña se sube lo pendiente.
-  const PUSH_GAP = 30 * 60 * 1000, PUSH_GAP_URGENT = 30 * 1000, HIDE_GAP = 10 * 60 * 1000;
+  let PUSH_GAP = 30 * 60 * 1000, PUSH_GAP_URGENT = 30 * 1000, HIDE_GAP = 10 * 60 * 1000;
+  // Versión local (emuladores en server/): no cuesta nada, así que se sube enseguida y la
+  // partida está al día en todos los dispositivos de casa.
+  if ((G.FIREBASE_CONFIG || {}).emulator) { PUSH_GAP = 15 * 1000; PUSH_GAP_URGENT = 2 * 1000; HIDE_GAP = 0; }
   let syncState = 'local';           // 'ok' | 'syncing' | 'pending' | 'offline' | 'local'
   const listeners = new Set();
 
@@ -331,11 +334,12 @@ G.DB = (() => {
     auth = firebase.auth();
     fs = firebase.firestore();
     rtdb = cfg.databaseURL ? firebase.database() : null;
-    // Sólo para pruebas: { ..., emulator: true } usa el emulador local de Firebase.
+    // Versión local: { ..., emulator: true } usa los emuladores de server/, por la misma
+    // dirección que el juego (server/gateway.js los reparte por ruta). La Realtime
+    // Database ya llega por databaseURL (?ns=...).
     if (cfg.emulator) {
-      auth.useEmulator('http://127.0.0.1:9099');
-      fs.useEmulator('127.0.0.1', 8080);
-      if (rtdb) rtdb.useEmulator('127.0.0.1', 9000);
+      auth.useEmulator(location.origin, { disableWarnings: true });
+      fs.settings({ host: location.host, ssl: location.protocol === 'https:', merge: true });
     }
     await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     auth.languageCode = 'es';

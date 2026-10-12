@@ -323,7 +323,7 @@ G.Ranking = (() => {
   async function countAbove(b, t) {
     const fb = fbx();
     const cfg = G.FIREBASE_CONFIG;
-    const base = fb.emulator ? 'http://127.0.0.1:8080/v1' : 'https://firestore.googleapis.com/v1';
+    const base = fb.emulator ? location.origin + '/v1' : 'https://firestore.googleapis.com/v1';
     const url = `${base}/projects/${cfg.projectId}/databases/(default)/documents/lb/${encodeURIComponent(b)}:runAggregationQuery`;
     const token = await fb.auth.currentUser.getIdToken();
     const body = { structuredAggregationQuery: {

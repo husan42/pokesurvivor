@@ -21,3 +21,13 @@ docs/CONTACTOS_CREADORES.md
 
 # Caché local de wrangler (Cloudflare)
 .wrangler/
+
+# versión local (server/)
+server/node_modules/
+server/emu-data/
+server/emu-data.*/
+server/backups/
+server/rules/
+server/.gate-password
+server/.gate-secret
+server/*-debug.log
