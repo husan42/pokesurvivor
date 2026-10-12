@@ -73,7 +73,7 @@ G.Spawner = (() => {
   function rollShiny(dex) {
     if (!G.Sprites.hasShiny(dex)) return false;
     if (forceShiny > 0) { forceShiny--; return true; }
-    return Math.random() < SHINY_RATE;
+    return G.Settings.chance(SHINY_RATE, 'rwShiny');
   }
 
   function spawnOne(pl, t, angle) {

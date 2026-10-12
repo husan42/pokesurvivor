@@ -7,13 +7,16 @@
  *   calm        true/false                        menos sacudidas y destellos
  *   fps         true/false                        contador de FPS
  *   stick       0.8 | 1 | 1.25                    tamaño del joystick táctil
+ *   rwCoins / rwTickets / rwXp / rwShiny   1..10  multiplicadores de recompensas
+ *               (versión local: monedas, tickets, experiencia y probabilidad de shiny)
  *
  *   G.Settings.get('quality')  ·  G.Settings.set('fps', true)  ·  G.Settings.on(fn)
  *   G.Settings.fx   nivel efectivo 0 (bajo) .. 2 (alto), ya resuelto el 'auto'
  */
 G.Settings = (() => {
   const KEY = 'ps.settings';
-  const DEF = { quality: 'auto', dmgNumbers: true, calm: false, fps: false, stick: 1 };
+  const DEF = { quality: 'auto', dmgNumbers: true, calm: false, fps: false, stick: 1,
+               rwCoins: 1, rwTickets: 1, rwXp: 1, rwShiny: 1 };
   let s = Object.assign({}, DEF);
   try { Object.assign(s, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { /* nada */ }
   const fns = new Set();
@@ -40,8 +43,15 @@ G.Settings = (() => {
     if (fastT >= 8 && autoLevel < (touchy ? 1 : 2)) { autoLevel++; fastT = 0; }
   }
 
+  // Multiplicadores de recompensas.
+  function mul(k) { const v = +s[k]; return isFinite(v) && v > 0 ? v : 1; }
+  /** ¿Sale? Probabilidad base × multiplicador (tope 1). */
+  function chance(rate, k) { return Math.random() < Math.min(1, rate * mul(k)); }
+  /** Cuántos salen: la media es probabilidad base × multiplicador (puede pasar de 1). */
+  function rolls(rate, k) { const e = rate * mul(k); const n = Math.floor(e); return n + (Math.random() < e - n ? 1 : 0); }
+
   return {
-    get, set, sample, DEF,
+    get, set, sample, DEF, mul, chance, rolls,
     on(fn) { fns.add(fn); },
     get all() { return Object.assign({}, s); },
     get fx() { return s.quality === 'auto' ? autoLevel : s.quality === 'high' ? 2 : s.quality === 'mid' ? 1 : 0; },

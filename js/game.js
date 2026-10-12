@@ -152,7 +152,7 @@ G.Game = (() => {
   /** Experiencia que hace falta para el siguiente nivel (cofres con candado). */
   function levelXp() {
     if (!pl) return 20;
-    const k = (G.Coop.active ? G.Coop.xpFactor() : 1) * (pl.xpMul || 1);
+    const k = (G.Coop.active ? G.Coop.xpFactor() : 1) * (pl.xpMul || 1) * G.Settings.mul('rwXp');
     return Math.ceil((pl.xpNext - pl.xp + 1) / k);
   }
 
@@ -282,13 +282,14 @@ G.Game = (() => {
     G.Audio.sfx(dead ? 'gameover' : 'back');
     const save = G.DB.save;
     const mul = pl.coinMul;
+    const rw = G.Settings.mul('rwCoins');      // multiplicador de recompensas (Ajustes)
     const parts = {
       tiempo: Math.floor(time / 5),
       derrotados: Math.floor(pl.kills * 0.25),
       jefes: pl.bosses * 80,
       recogidas: pl.coins
     };
-    const coins = Math.round((parts.tiempo + parts.derrotados + parts.jefes + parts.recogidas) * mul);
+    const coins = Math.round((parts.tiempo + parts.derrotados + parts.jefes + parts.recogidas) * mul * rw);
     // Anti-trampas (core/guard.js): si algo no cuadra, no cuenta para el ranking ni los récords.
     const clean = G.Guard.end();
     const record = clean && time > save.stats.bestTime;
@@ -318,7 +319,7 @@ G.Game = (() => {
       dead, time, level: pl.level, kills: pl.kills, bosses: pl.bosses, coins, record, t1: pl.t1, t10: pl.t10,
       moves: pl.moves, caught,
       breakdown: Object.entries(parts).filter(([, v]) => v).map(([k, v]) => `${k} ${v}`).join(' · ') +
-                 (mul > 1 ? ` · ×${mul.toFixed(2)} Fortuna` : '')
+                 (mul > 1 ? ` · ×${mul.toFixed(2)} Fortuna` : '') + (rw !== 1 ? ` · ×${rw} Recompensas` : '')
     }, () => { pl = null; G.Flow.afterRun(); });
   }
 
@@ -418,7 +419,7 @@ G.Game = (() => {
     if (G.Coop.active) G.Coop.collected(p, who);
     if (mine || p.kind === 'bomb') G.Audio.sfx(PICK_SFX[p.kind]);
     if (p.kind === 'xp' || p.kind === 'xpBig') {
-      pendingLevels += pl.gainXp(p.value * (G.Coop.active ? G.Coop.xpFactor() : 1));
+      pendingLevels += pl.gainXp(p.value * (G.Coop.active ? G.Coop.xpFactor() : 1) * G.Settings.mul('rwXp'));
       return;
     }
     if (p.kind === 'coin') {

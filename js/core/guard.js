@@ -54,7 +54,7 @@ G.Guard = (() => {
     if (p.cdMul < 0.14) flag('recarga');
     if (p.magnet > 3000) flag('imán');
     if (p.coinMul > 3) flag('monedas');
-    if (p.level > 10 + time / 4) flag('nivel');
+    if (p.level > (10 + time / 4) * G.Settings.mul('rwXp')) flag('nivel');
     // En grupo los derrotados y las monedas los reparte el anfitrión: sólo en solitario.
     if (run.prev && !run.coop) {
       const d = Math.max(1, time - run.prev.time);

@@ -533,5 +533,13 @@ G.I18n.add({
     'Tap the moves you do not want in your cards ({x}). The starting move cannot be banned.',
   'Ya tienes {x} vetados: quita uno primero': 'You already have {x} banned: remove one first',
   'En iPhone, Safari no deja poner las webs a pantalla completa. Pulsa Compartir y luego "Añadir a pantalla de inicio": abriendo el juego desde ese icono se juega a pantalla completa.':
-    'On iPhone, Safari does not let websites go fullscreen. Tap Share and then "Add to Home Screen": opening the game from that icon plays it fullscreen.'
+    'On iPhone, Safari does not let websites go fullscreen. Tap Share and then "Add to Home Screen": opening the game from that icon plays it fullscreen.',
+  // ---------------- versión local: Ajustes > Recompensas ----------------
+  'Recompensas': 'Rewards', 'Monedas': 'Coins',
+  'Multiplica lo que ganas jugando. Se guarda en este dispositivo y vale desde la próxima recompensa.':
+    'Multiplies what you earn by playing. Saved on this device; applies from the next reward.',
+  'Monedas al acabar la partida y premios de misiones y logros.': 'Coins at the end of a run, plus mission and achievement rewards.',
+  'Tickets que sueltan los enemigos y los jefes, y los de misiones y logros.': 'Tickets dropped by enemies and bosses, plus mission and achievement tickets.',
+  'Experiencia': 'Experience', 'Experiencia de los orbes: subes de nivel antes.': 'Experience from orbs: you level up sooner.',
+  'Probabilidad de shiny': 'Shiny chance', 'Shinies salvajes (1/4096) y del gacha (1/100).': 'Wild shinies (1/4096) and gacha shinies (1/100).'
 });

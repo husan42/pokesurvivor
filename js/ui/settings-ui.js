@@ -99,6 +99,14 @@ G.SettingsUI = (() => {
              <div><kbd>Esc</kbd> o <kbd>P</kbd></div><span>pausa</span>
              <div><kbd>1</kbd>–<kbd>3</kbd></div><span>elegir carta al subir de nivel</span>
            </div>`;
+    } else if (tab === 'rw') {
+      const MULS = [[1, '×1'], [2, '×2'], [3, '×3'], [5, '×5'], [10, '×10']];
+      const row = (key, label, desc) => `<div class="set-row"><div class="grow"><b>${esc(label)}</b><small>${esc(desc)}</small></div></div>` + choice(key, MULS);
+      box.innerHTML = section('Recompensas', 'Multiplica lo que ganas jugando. Se guarda en este dispositivo y vale desde la próxima recompensa.')
+        + row('rwCoins', 'Monedas', 'Monedas al acabar la partida y premios de misiones y logros.')
+        + row('rwTickets', 'Tickets', 'Tickets que sueltan los enemigos y los jefes, y los de misiones y logros.')
+        + row('rwXp', 'Experiencia', 'Experiencia de los orbes: subes de nivel antes.')
+        + row('rwShiny', 'Probabilidad de shiny', 'Shinies salvajes (1/4096) y del gacha (1/100).');
     } else if (tab === 'acc') {
       renderAccount(box);
     } else {

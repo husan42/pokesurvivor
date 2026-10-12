@@ -106,9 +106,16 @@ G.Progress = (() => {
     return true;
   }
 
+  /** Premio con los multiplicadores de Ajustes > Recompensas. */
+  function scaled(r) {
+    const c = G.Settings.mul('rwCoins'), t = G.Settings.mul('rwTickets');
+    return { coins: Math.round((r.coins || 0) * c), t1: Math.round((r.t1 || 0) * t), t10: Math.round((r.t10 || 0) * t) };
+  }
+
   function grant(r) {
     const s = G.DB.save;
     if (!r) return;
+    r = scaled(r);
     s.tickets = s.tickets || { t1: 0, t10: 0 };
     if (r.coins) s.coins += r.coins;
     if (r.t1) s.tickets.t1 += r.t1;
@@ -118,6 +125,7 @@ G.Progress = (() => {
 
   function rewardText(r) {
     const p = [];
+    r = scaled(r);
     if (r.t10) p.push(G.Icons.html('ticket10', 12) + ' ' + r.t10 + ' ×10');
     if (r.t1) p.push(G.Icons.html('ticket', 12) + ' ' + r.t1);
     if (r.coins) p.push('<span class="coin"></span> ' + r.coins);
