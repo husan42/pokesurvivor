@@ -19,7 +19,11 @@ G.Camera = {
   resize(cssW, cssH, dpr = 1) {
     this.dpr = dpr;
     // Ajustes > Tamaño de la vista: en el móvil todo se ve más grande (menos mundo a la vista).
-    this.scale = Math.min(cssW / this.VIEW_W, cssH / this.MIN_VIEW_H) * (G.Settings.zoom || 1);
+    // En vertical, lo mismo girado: el lado corto ve MIN_VIEW_H y el largo VIEW_W (el Pokémon se
+    // ve igual de grande que en horizontal; se ve más mapa arriba y abajo y menos a los lados).
+    const base = cssH > cssW ? Math.min(cssW / this.MIN_VIEW_H, cssH / this.VIEW_W)
+                             : Math.min(cssW / this.VIEW_W, cssH / this.MIN_VIEW_H);
+    this.scale = base * (G.Settings.zoom || 1);
     this.w = cssW / this.scale;
     this.h = cssH / this.scale;
   },

@@ -314,9 +314,9 @@ G.Events = (() => {
       ctx.save();
       ctx.font = F(800, 12); ctx.textAlign = 'center';
       ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,.8)';
-      ctx.strokeText(txt, w / 2, 112);
+      ctx.strokeText(txt, w / 2, 112 + (G.HUD.top || 0));
       ctx.fillStyle = cur.id === 'gold' ? '#ffd23f' : G.U.TYPE_COLOR[cur.type] || '#fff';
-      ctx.fillText(txt, w / 2, 112);
+      ctx.fillText(txt, w / 2, 112 + (G.HUD.top || 0));
       ctx.restore();
     }
   }

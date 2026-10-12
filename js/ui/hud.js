@@ -33,6 +33,9 @@ G.HUD = (() => {
     // Móvil: textos de arriba más grandes (K) y fuera de la muesca / barra de inicio (sa).
     const K = touch ? 1.3 : 1;
     const sa = touch ? G.Touch.safeArea() : { top: 0, right: 0, bottom: 0, left: 0 };
+    // Vertical: la vida ocupa casi todo el ancho de arriba; el reloj y lo demás bajan TOP px.
+    const portrait = touch && h > w, TOP = portrait ? 66 : 0;
+    G.HUD.top = TOP;
 
     // ---------- barra de experiencia (borde superior) ----------
     const xpF = pl.xp / pl.xpNext;
@@ -84,7 +87,7 @@ G.HUD = (() => {
 
     // ---------- reloj / bioma / kills ----------
     ctx.save();
-    ctx.translate(w / 2, 0);
+    ctx.translate(w / 2, TOP + (portrait ? sa.top : 0));
     if (touch) ctx.scale(1.15, 1.15);
     ctx.textAlign = 'center';
     ctx.font = F(800, 26);
@@ -102,7 +105,7 @@ G.HUD = (() => {
       ctx.textAlign = 'left';
       const txt = wx.name.toUpperCase() + ' · ' + Math.ceil(wx.left) + 's';
       const tw = ctx.measureText(txt).width + 40;
-      const x0 = w - tw - 16 - (touch ? 56 + Math.min(44, sa.right) : 0), y0 = 14;
+      const x0 = w - tw - 16 - (portrait ? Math.min(44, sa.right) : touch ? 56 + Math.min(44, sa.right) : 0), y0 = portrait ? 62 + sa.top : 14;
       roundRect(ctx, x0, y0, tw, 26, 9);
       ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fill();
       G.Icons.draw(ctx, wx.icon, x0 + 6, y0 + 3, 20);
@@ -114,10 +117,10 @@ G.HUD = (() => {
     const boss = G.EnemyMgr.all().find(e => e.boss && !e.dead);
     if (boss) {
       const bw = Math.min(420, w - 80);
-      bar(ctx, (w - bw) / 2, 70, bw, 12, boss.hp / boss.maxHp, '#ffcb3d');
+      bar(ctx, (w - bw) / 2, 70 + TOP, bw, 12, boss.hp / boss.maxHp, '#ffcb3d');
       ctx.font = F(800, 10);
       ctx.fillStyle = '#20160a';
-      ctx.fillText(boss.name.toUpperCase(), w / 2, 80);
+      ctx.fillText(boss.name.toUpperCase(), w / 2, 80 + TOP);
     }
 
     // ---------- aviso ----------
@@ -127,7 +130,7 @@ G.HUD = (() => {
       const sx = (e.x - cam.left()) * cam.scale, sy = (e.y - cam.top()) * cam.scale;
       if (sx > 0 && sx < w && sy > 0 && sy < h) continue;
       const M = 34;
-      const ex = G.U.clamp(sx, M, w - M), ey = G.U.clamp(sy, M + 60, h - M - 70);
+      const ex = G.U.clamp(sx, M, w - M), ey = G.U.clamp(sy, M + 60 + TOP, h - M - 70);
       const a = Math.atan2(sy - ey, sx - ex);
       ctx.save();
       ctx.globalAlpha = pulse;
@@ -171,7 +174,7 @@ G.HUD = (() => {
       const off = sx < 0 || sx > w || sy < 0 || sy > h;
       ctx.save();
       if (off) {
-        const M = 52, ex = G.U.clamp(sx, M, w - M), ey = G.U.clamp(sy, M + 70, h - M - 80);
+        const M = 52, ex = G.U.clamp(sx, M, w - M), ey = G.U.clamp(sy, M + 70 + TOP, h - M - 80);
         const a = Math.atan2(sy - ey, sx - ex), ca = Math.cos(a), sa = Math.sin(a);
         ctx.translate(ex, ey);
         // Halo que late.
@@ -213,7 +216,7 @@ G.HUD = (() => {
       ctx.textAlign = 'center';
       ctx.font = F(800, 12);
       ctx.fillStyle = '#d9c2ff';
-      ctx.fillText('GRIETA · ' + G.U.mmss(G.Rift.timeLeft), w / 2, boss ? 98 : 76);
+      ctx.fillText('GRIETA · ' + G.U.mmss(G.Rift.timeLeft), w / 2, (boss ? 98 : 76) + TOP);
     }
 
     // Eventos: cuenta atrás, flecha al Pokémon perdido / a la marca y a los duendes.
@@ -401,7 +404,8 @@ G.HUD = (() => {
       ctx.fillStyle = touch ? 'rgba(200,215,240,.75)' : 'rgba(180,200,230,.55)';
       ctx.fillText(touch ? 'Arrastra el dedo para moverte  ·  toca un ataque para cambiarlo'
                          : 'WASD moverse  ·  1-4 / Q / E o clic en un ataque para cambiarlo  ·  Esc pausa',
-                   touch ? (w - totalW - 30) / 2 : w / 2, touch ? h - Math.max(14, sa.bottom + 8) : h - 4);
+                   portrait ? w / 2 : touch ? (w - totalW - 30) / 2 : w / 2,
+                   portrait ? gy - 40 : touch ? h - Math.max(14, sa.bottom + 8) : h - 4);
     }
 
     ctx.restore();
@@ -443,7 +447,7 @@ G.HUD = (() => {
       const sx = (o.x - cam.left()) * cam.scale, sy = (o.y - o.bodyH * 0.5 - cam.top()) * cam.scale;
       if (sx > 0 && sx < w && sy > 0 && sy < h) continue;
       const M = 42;
-      const ex = G.U.clamp(sx, M, w - M), ey = G.U.clamp(sy, M + 70, h - M - 80);
+      const ex = G.U.clamp(sx, M, w - M), ey = G.U.clamp(sy, M + 70 + (G.HUD.top || 0), h - M - 80);
       const a = Math.atan2(sy - ey, sx - ex);
       const metres = Math.round(G.U.dist(pl.x, pl.y, o.x, o.y) / 32);
       const col = o.dead ? (Math.sin(t * 8) > 0 ? '#ff5f6d' : '#ffd0d5') : m.color;
@@ -491,5 +495,5 @@ G.HUD = (() => {
     }
   }
 
-  return { draw, roundRect, bar };
+  return { draw, roundRect, bar, top: 0 };
 })();

@@ -876,3 +876,63 @@ body.touch .menu-item { min-height: 40px; }
   #pull-results .pcard .tag { font-size: 11px; margin-top: 0; }
   #pull-results .pcard .stars { font-size: 11px; }
 }
+
+/* ============ versión local: móvil en VERTICAL ============
+ * Antes el juego pedía girar el móvil. Ahora se juega también en vertical:
+ * - barra superior sólo con monedas, tickets, cuenta, novedades y ajustes (sonido, pantalla
+ *   completa y salir están en Ajustes; "Apoyar" no hace falta en la versión local);
+ * - menú principal en una columna con el menú en dos columnas, sin la línea de créditos
+ *   (está en Ajustes > Acerca de);
+ * - gacha, Pokédex y resultados del gacha ajustados al ancho. */
+@media (orientation: portrait) and (max-width: 600px) {
+  .topbar { left: 8px; right: 8px; top: max(8px, env(safe-area-inset-top)); gap: 6px; justify-content: flex-end; flex-wrap: nowrap; }
+  #btn-support, #btn-sound, #btn-full, #btn-logout { display: none !important; }
+  .pill { padding: 3px 9px; font-size: 14px; gap: 5px; }
+  #user-pill { max-width: 112px; overflow: hidden; white-space: nowrap; }
+  .topbar .btn.small { padding: 3px 7px; }
+  .credits-line { display: none !important; }
+  .sound-panel { top: 56px; }
+
+  #scr-menu { flex-direction: column; overflow-y: auto; padding: 0; }
+  .menu-left { flex: 0 0 auto; padding: calc(58px + env(safe-area-inset-top)) 12px 2px; }
+  .menu-left .logo { margin-bottom: 2px; }
+  .menu-left .logo .t1 { font-size: 34px; }
+  .logo .t2 { font-size: 12px; margin-top: 2px; letter-spacing: 2px; }
+  #menu-partner { height: min(20vh, 170px); width: auto; }
+  .partner-card { margin-top: 0; }
+  .partner-card .nm { font-size: 20px; }
+  .menu-right { width: 100%; flex: 1 0 auto; padding: 4px 12px calc(12px + env(safe-area-inset-bottom)); gap: 8px; background: none; overflow: visible; }
+  .menu-right > :first-child { margin-top: 0; }
+  .menu-right .box { padding: 8px 10px; }
+  .menu-list { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 6px; }
+  .menu-item { font-size: 17px; padding: 6px 8px; grid-template-columns: 26px 1fr; column-gap: 6px; }
+  .menu-item.play { grid-column: span 2; font-size: 24px; }
+  .menu-item small { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .menu-item::before { display: none; }
+
+  .scr { padding-left: 8px; padding-right: 8px; }
+  .box { padding: 12px 12px; }
+  .box h2 { font-size: 22px; }
+
+  #scr-gacha .split > div, #scr-gacha .split > * { min-width: 0; }
+  #scr-gacha .banner { padding: 10px 12px; }
+  #scr-gacha .banner h3 { font-size: 22px; }
+  #scr-gacha .banner .feat { height: 120px; margin: 4px -10px -10px; }
+  #scr-gacha .banner .feat canvas { height: 120px; width: auto; }
+  #scr-gacha .split .row { flex-wrap: wrap; gap: 6px; margin-top: 10px !important; }
+  #scr-gacha .split .row .btn { flex: 1 1 30%; padding: 8px 6px; font-size: 14px; white-space: nowrap; }
+
+  #scr-dex .split > * { min-width: 0; }
+  #scr-dex .grid { grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 6px; max-height: 46vh; }
+  #scr-dex .cell canvas { width: 72px; height: auto; }
+  #scr-dex .cell b { font-size: 12px; }
+
+  #pull-fx { padding: calc(10px + env(safe-area-inset-top)) 8px 10px; }
+  #pull-results { gap: 6px; max-width: 100%; }
+  #pull-results .pcard { width: 108px; padding: 4px 3px; }
+  #pull-results .pcard canvas { width: 84px; height: auto; }
+  #pull-results .pcard b { font-size: 13px; }
+  #pull-results .pcard .tag { font-size: 11px; }
+}
+
+body.touch .gen-tab { min-height: 38px; }

@@ -63,14 +63,11 @@ G.Game = (() => {
     checkOrientation();
   }
 
-  /** Móvil en vertical: aviso de girarlo (y pausa). */
+  /** Versión local: también se juega en vertical (cámara, HUD y menús se adaptan; ver
+   *  camera.js, hud.js y style.css "vertical"). Ya no se pide girar el móvil ni se pausa. */
   function checkOrientation() {
-    const portrait = G.Touch.active && innerHeight > innerWidth;
     const el = document.getElementById('rotate');
-    if (!el) return;
-    if (portrait && !document.getElementById('rotate-ico').innerHTML) document.getElementById('rotate-ico').innerHTML = G.Icons.html('phone', 48);
-    el.classList.toggle('hidden', !portrait);
-    if (portrait) autoPause();
+    if (el) el.classList.add('hidden');
   }
 
   /** Pausa sola (sólo en solitario: en grupo los demás siguen). */
