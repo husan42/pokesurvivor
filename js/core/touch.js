@@ -11,6 +11,9 @@ G.Touch = (() => {
   let cv = null, stick = null;
   let active = G.Settings.touch;      // ¿se está usando táctil?
   let buttons = [];
+  // Zonas de botones (los movimientos): un toque dentro, aunque caiga entre dos iconos,
+  // pulsa el más cercano y nunca abre el joystick.
+  let zones = [];
 
   const R = () => 56 * (G.Settings.get('stick') || 1);
 
@@ -31,7 +34,7 @@ G.Touch = (() => {
     cv.addEventListener('touchstart', e => {
       if (e.cancelable) e.preventDefault();
       if (!active) { active = true; document.body.classList.add('touch'); }
-      for (const t of e.changedTouches) { const b = hit(t.clientX, t.clientY); if (b) press(b); }
+      for (const t of e.changedTouches) { const b = hit(t.clientX, t.clientY) || nearest(t.clientX, t.clientY); if (b) press(b); }
     }, { passive: false });
     document.addEventListener('selectstart', e => {
       if (!e.target.closest || !e.target.closest('input, textarea, [contenteditable]')) e.preventDefault();
@@ -48,6 +51,20 @@ G.Touch = (() => {
     return null;
   }
 
+  /** Dentro de una zona de botones: el botón de esa zona más cercano al dedo. */
+  function nearest(x, y) {
+    const z = zones.find(z => x >= z.x && x <= z.x + z.w && y >= z.y && y <= z.y + z.h);
+    if (!z) return null;
+    let best = null, bd = Infinity;
+    for (const b of buttons) {
+      const cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+      if (cx < z.x || cx > z.x + z.w || cy < z.y || cy > z.y + z.h) continue;
+      const d = Math.hypot(cx - x, cy - y);
+      if (d < bd) { bd = d; best = b; }
+    }
+    return best || { x: z.x, y: z.y, w: 0, h: 0, fn: () => {} };   // zona sin botón: el toque no hace nada
+  }
+
   // Un mismo toque llega por touchstart y por pointerdown: se pulsa una sola vez.
   let lastKey = '', lastAt = 0;
   function press(b) {
@@ -60,7 +77,7 @@ G.Touch = (() => {
   function down(e) {
     const touchy = e.pointerType !== 'mouse';
     if (touchy && !active) { active = true; document.body.classList.add('touch'); }
-    const b = hit(e.clientX, e.clientY);
+    const b = hit(e.clientX, e.clientY) || (touchy ? nearest(e.clientX, e.clientY) : null);
     if (b) { e.preventDefault(); press(b); return; }
     if (!touchy || stick || !G.Game || G.Game.state !== 'playing') return;
     e.preventDefault();
@@ -106,8 +123,9 @@ G.Touch = (() => {
   addEventListener('orientationchange', () => { safe = null; });
 
   /** El HUD vacía y vuelve a registrar sus botones cada fotograma. */
-  function clearButtons() { buttons = []; }
+  function clearButtons() { buttons = []; zones = []; }
   function addButton(x, y, w, h, fn, pad = 6) { buttons.push({ x, y, w, h, fn, pad }); }
+  function addZone(x, y, w, h) { zones.push({ x, y, w, h }); }
 
   /** Dibuja el joystick (coordenadas de pantalla, CSS px). */
   function draw(ctx) {
@@ -128,6 +146,6 @@ G.Touch = (() => {
     ctx.restore();
   }
 
-  return { init, vector, draw, clearButtons, addButton, reset, safeArea,
+  return { init, vector, draw, clearButtons, addButton, addZone, reset, safeArea,
            get active() { return active; }, get stick() { return stick; } };
 })();

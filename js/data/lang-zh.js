@@ -1158,5 +1158,8 @@ G.I18n.add({
   "recogidas": "撿到的金幣",
   "Nv. {x}": "Lv. {x}", "Nv.{x} > {x}": "Lv.{x} > {x}",
   "Nv.{x}": "Lv.{x}", "Shiny": "異色", "shiny": "異色",
-  "Fuente china:": "中文字型："
+  "Fuente china:": "中文字型：",
+  "Tamaño de la vista": "畫面縮放", "Pequeña": "小", "Mediana": "中", "Grande": "大",
+  "Más grande: el Pokémon y los enemigos se ven mayores, pero ves menos mapa alrededor.": "越大：寶可夢和敵人顯示得越大，但能看到的地圖範圍越小。",
+  "Solo": "單人", "Aún no estás en el top 50 {x} {x}. Tu puesto exacto está en Histórico.": "你還沒進入{x}{x}前 50 名。確切名次請看「歷來」。"
 }, 'zh');

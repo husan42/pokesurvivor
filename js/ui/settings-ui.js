@@ -79,6 +79,9 @@ G.SettingsUI = (() => {
              `<button class="chip ${G.I18n.lang === v ? 'on' : ''}" data-lang="${v}">${l}</button>`).join('')}</div>`
         + section('Calidad', 'Cuántos efectos y partículas se dibujan. <b>Auto</b> la baja sola si el juego va a tirones (ahora: ' + auto + ').')
         + choice('quality', [['auto', 'Auto'], ['high', 'Alta'], ['mid', 'Media'], ['low', 'Baja']])
+        + section('Tamaño de la vista', 'Más grande: el Pokémon y los enemigos se ven mayores, pero ves menos mapa alrededor.')
+        + `<div class="chips set-chips">${[['s', 'Pequeña'], ['m', 'Mediana'], ['l', 'Grande']].map(([v, l]) =>
+             `<button class="chip ${G.Settings.zoomKey === v ? 'on' : ''}" data-k="zoom" data-v="${v}">${esc(l)}</button>`).join('')}</div>`
         + section('Pantalla')
         + toggle('dmgNumbers', 'Números de daño', 'Los números que salen al golpear y al recibir daño.')
         + toggle('calm', 'Menos sacudidas y destellos', 'La cámara tiembla menos y los fogonazos son suaves.')

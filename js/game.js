@@ -31,6 +31,9 @@ G.Game = (() => {
     ctx = cv.getContext('2d');
     resize();
     addEventListener('resize', resize);
+    // iPhone: el alto de verdad visible (barras del navegador) y cambios de tamaño de la vista.
+    if (window.visualViewport) visualViewport.addEventListener('resize', resize);
+    G.Settings.on(k => { if (k === 'zoom' || k === 'quality') resize(); });
     G.Touch.init(cv);
     // En móvil: al cambiar de app o girarlo en vertical, la partida se pausa.
     document.addEventListener('visibilitychange', () => { if (document.hidden) autoPause(); });
@@ -40,10 +43,19 @@ G.Game = (() => {
     requestAnimationFrame(loop);
   }
 
+  /** Resolución interna. En PC como mucho ×1,5 (en pantallas ×2 dibujar el doble de
+   *  píxeles era de lo que más costaba). En el móvil (pantallas ×3) a ×1,5 el texto y el
+   *  pixel art se veían borrosos: hasta ×3, y ×1,5 si la calidad baja (va a tirones). */
+  function wantDpr() {
+    const d = window.devicePixelRatio || 1;
+    if (!G.Touch.active) return Math.min(1.5, d);
+    return Math.min(G.Settings.fx >= 1 ? 3 : 1.5, d);
+  }
+
   function resize() {
-    // Resolución interna como mucho ×1,5: en pantallas ×2 dibujar el doble de
-    // píxeles era de lo que más costaba, y con el pixel art no se nota.
-    dpr = Math.min(1.5, window.devicePixelRatio || 1);
+    dpr = wantDpr();
+    // En táctil, el alto que de verdad se ve (100dvh no siempre lo da bien en iPhone).
+    if (G.Touch.active && window.visualViewport) cv.style.height = Math.round(visualViewport.height) + 'px';
     w = cv.clientWidth; h = cv.clientHeight;
     cv.width = Math.round(w * dpr);
     cv.height = Math.round(h * dpr);
@@ -531,6 +543,7 @@ G.Game = (() => {
     const dt = Math.min(1 / 30, real) * speedK;
     last = ts;
     if (state === 'playing') G.Settings.sample(real);
+    if (G.Touch.active && wantDpr() !== dpr) resize();      // la calidad automática ha cambiado
     fpsAcc += real; fpsN++;
     if (fpsAcc >= 0.5) { fpsShown = Math.round(fpsN / fpsAcc); fpsAcc = 0; fpsN = 0; }
     frameDt = state === 'playing' ? dt : 0;

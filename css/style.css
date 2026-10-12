@@ -819,3 +819,24 @@ a.btn { text-decoration: none; display: inline-block; color: var(--ink); }
   #dex-detail .btn { position: sticky; bottom: 0; order: 9; margin-top: auto; padding: 8px 6px; font-size: 15px;
     box-shadow: 0 -6px 10px rgba(5,10,25,.6); }
 }
+
+
+/* ============ versión local: móvil (iPhone en horizontal) ============
+ * - Botones táctiles de al menos ~40 px (antes muchos se quedaban en 28-34 px).
+ * - Mejoras y misiones más compactas en pantallas bajas: antes la cabecera ocupaba
+ *   casi media pantalla y sólo se veían 4 mejoras.
+ * - .more (ui.js): la caja tiene más contenido debajo -> se difumina el borde de abajo. */
+body.touch .btn.small { min-height: 40px; }
+body.touch .chip { min-height: 34px; }
+body.touch .topbar .btn.small { min-width: 40px; min-height: 38px; }
+body.touch .menu-item { min-height: 40px; }
+.more { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 34px), rgba(0,0,0,.25));
+        mask-image: linear-gradient(to bottom, #000 calc(100% - 34px), rgba(0,0,0,.25)); }
+@media (max-height: 520px) {
+  .upg-head { margin: 0 0 6px; gap: 10px; }
+  .upg-head .stage { width: 76px; height: 60px; flex: 0 0 76px; }
+  .upg { gap: 6px; }
+  .upg-item { padding: 6px 10px; gap: 8px; }
+  .mission { padding: 6px 10px; gap: 8px; margin-bottom: 4px; }
+  .goals-body { max-height: calc(100dvh - 150px); }
+}

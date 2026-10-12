@@ -18,7 +18,8 @@ G.Camera = {
 
   resize(cssW, cssH, dpr = 1) {
     this.dpr = dpr;
-    this.scale = Math.min(cssW / this.VIEW_W, cssH / this.MIN_VIEW_H);
+    // Ajustes > Tamaño de la vista: en el móvil todo se ve más grande (menos mundo a la vista).
+    this.scale = Math.min(cssW / this.VIEW_W, cssH / this.MIN_VIEW_H) * (G.Settings.zoom || 1);
     this.w = cssW / this.scale;
     this.h = cssH / this.scale;
   },

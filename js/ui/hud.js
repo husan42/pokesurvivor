@@ -30,6 +30,9 @@ G.HUD = (() => {
     ctx.textBaseline = 'alphabetic';
     G.Touch.clearButtons();
     const touch = G.Touch.active;
+    // Móvil: textos de arriba más grandes (K) y fuera de la muesca / barra de inicio (sa).
+    const K = touch ? 1.3 : 1;
+    const sa = touch ? G.Touch.safeArea() : { top: 0, right: 0, bottom: 0, left: 0 };
 
     // ---------- barra de experiencia (borde superior) ----------
     const xpF = pl.xp / pl.xpNext;
@@ -41,7 +44,10 @@ G.HUD = (() => {
     ctx.fillRect(0, 0, w * G.U.clamp(xpF, 0, 1), 7);
 
     // ---------- vida + nivel ----------
-    const px = 16, py = 20;
+    // En táctil se dibuja ampliado (K) desde la esquina, apartado de la muesca.
+    const px = 16, py = 20, ox = sa.left;
+    ctx.save();
+    ctx.translate(ox, 0); ctx.scale(K, K);
     ctx.font = F(800, 13);
     ctx.fillStyle = '#eaf2ff';
     ctx.textAlign = 'left';
@@ -74,15 +80,20 @@ G.HUD = (() => {
       ctx.fillText(txt, bx + 6, py + 45);
       bx += tw + 5;
     }
+    ctx.restore();
 
     // ---------- reloj / bioma / kills ----------
+    ctx.save();
+    ctx.translate(w / 2, 0);
+    if (touch) ctx.scale(1.15, 1.15);
     ctx.textAlign = 'center';
     ctx.font = F(800, 26);
     ctx.fillStyle = 'rgba(255,255,255,.95)';
-    ctx.fillText(G.U.mmss(st.time), w / 2, 42);
-    ctx.font = F(600, 10);
+    ctx.fillText(G.U.mmss(st.time), 0, 42);
+    ctx.font = F(600, touch ? 11 : 10);
     ctx.fillStyle = '#8fa3c4';
-    ctx.fillText(G.World.biomeName().toUpperCase() + '  ·  ' + pl.kills + ' DERROTADOS  ·  ' + pl.coins + ' MONEDAS', w / 2, 58);
+    ctx.fillText(G.World.biomeName().toUpperCase() + '  ·  ' + pl.kills + ' DERROTADOS  ·  ' + pl.coins + ' MONEDAS', 0, 58);
+    ctx.restore();
 
     // ---------- clima (arriba a la derecha) ----------
     const wx = G.Weather.current;
@@ -91,7 +102,7 @@ G.HUD = (() => {
       ctx.textAlign = 'left';
       const txt = wx.name.toUpperCase() + ' · ' + Math.ceil(wx.left) + 's';
       const tw = ctx.measureText(txt).width + 40;
-      const x0 = w - tw - 16 - (touch ? 56 : 0), y0 = 14;
+      const x0 = w - tw - 16 - (touch ? 56 + Math.min(44, sa.right) : 0), y0 = 14;
       roundRect(ctx, x0, y0, tw, 26, 9);
       ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fill();
       G.Icons.draw(ctx, wx.icon, x0 + 6, y0 + 3, 20);
@@ -135,6 +146,8 @@ G.HUD = (() => {
     // Poder de altar activo.
     if (pl.power) {
       const pw = pl.power, txt = pw.def.name.toUpperCase() + ' ' + Math.ceil(pw.t) + 's';
+      ctx.save();
+      ctx.translate(ox, 0); ctx.scale(K, K);
       ctx.font = F(800, 9);
       ctx.textAlign = 'left';
       const tw = ctx.measureText(txt).width + 12;
@@ -143,9 +156,10 @@ G.HUD = (() => {
       ctx.fillStyle = pw.def.color;
       ctx.fillText(txt, bx + 6, py + 45);
       bx += tw + 5;
+      ctx.restore();
     }
 
-    if (G.Coop.active) drawCoop(ctx, w, h, pl, px, py + (bx > px ? 56 : 40));
+    if (G.Coop.active) drawCoop(ctx, w, h, pl, ox + px, (py + (bx > px ? 56 : 40)) * K);
 
     // Grieta: flecha grande que late en el borde si no se ve, y si se ve, una
     // flecha que bota encima; en la arena, cuenta atrás.
@@ -238,12 +252,23 @@ G.HUD = (() => {
     }
 
     // ---------- ranura de movimientos ----------
-    const S = 54, GAP = 9;
+    // PC: en fila, abajo en el centro. Táctil: cuadrícula de 2 columnas abajo a la derecha,
+    // donde cae el pulgar, más grande y lejos del borde de abajo (en iPhone, cerca de la barra
+    // de inicio los toques a veces no llegan o llegan tarde).
+    const S = touch ? 60 : 54, GAP = touch ? 10 : 9;
     const n = Math.max(1, pl.slots.length);
-    const totalW = n * S + (n - 1) * GAP;
-    let sx = (w - totalW) / 2;
-    // Por encima de la barra de inicio del iPhone (allí los toques a veces no llegan).
-    const sy = h - S - 18 - (touch ? Math.min(28, G.Touch.safeArea().bottom) : 0);
+    const cols = touch ? Math.min(2, n) : n, rows = Math.ceil(n / cols);
+    const totalW = cols * S + (cols - 1) * GAP, totalH = rows * S + (rows - 1) * GAP;
+    let sx, sy, gy;
+    if (touch) {
+      sx = w - Math.max(18, sa.right + 10) - totalW;
+      gy = h - Math.max(34, sa.bottom + 16) - totalH;
+      sy = gy + totalH - S;                        // fila de abajo (para el objeto y el vínculo)
+      G.Touch.addZone(sx - 16, gy - 16, totalW + 32, totalH + 32);
+    } else {
+      sx = (w - totalW) / 2;
+      sy = gy = h - S - 18;
+    }
     const BOND = '#ff8ad8';
     const cdOf = m => m.kind === 'orbit' ? 0 : G.U.clamp(m.t / (m.cd * pl.cdMul), 0, 1);
 
@@ -252,8 +277,8 @@ G.HUD = (() => {
       const m = g[0];
       const fused = g.length > 1;
       const on = i === pl.active;
-      const x = sx + i * (S + GAP);
-      const y = on ? sy - 6 : sy;
+      const x = sx + (i % cols) * (S + GAP);
+      const y = touch ? gy + Math.floor(i / cols) * (S + GAP) : on ? sy - 6 : sy;
       // Tocar (o hacer clic en) un icono activa ese movimiento.
       if (m) G.Touch.addButton(x, y, S, S, () => { if (G.Game.state === 'playing' && pl.active !== i) { pl.setActive(i); G.Audio.sfx('click'); } }, GAP / 2 + 3);
       const col = m ? G.U.TYPE_COLOR[m.type] : '#4a5468';
@@ -271,7 +296,7 @@ G.HUD = (() => {
 
       if (fused) {
         // Vínculo: los movimientos en una cuadrícula de 2×2, cada uno con su recarga.
-        const C = 22, P = (S - C * 2) / 3;
+        const C = Math.round(S * 0.4), P = (S - C * 2) / 3;
         g.forEach((gm, k) => {
           const cx = x + P + (k % 2) * (C + P), cy = y + P + Math.floor(k / 2) * (C + P);
           G.Icons.draw(ctx, 'move:' + gm.id, cx, cy, C);
@@ -294,7 +319,8 @@ G.HUD = (() => {
         }
 
         // emblema del tipo + insignia de la familia
-        G.Icons.draw(ctx, 'move:' + m.id, x + (S - 32) / 2, y + (S - 32) / 2 - 2, 32);
+        const IC = touch ? 36 : 32;
+        G.Icons.draw(ctx, 'move:' + m.id, x + (S - IC) / 2, y + (S - IC) / 2 - 2, IC);
 
         // nivel del movimiento (puntitos)
         const dots = m.def.maxLvl;
@@ -312,18 +338,23 @@ G.HUD = (() => {
       ctx.textAlign = 'left';
       ctx.fillText(String(i + 1), x + 3, y + 10);
 
-      // nombre encima del activo (con un vínculo: "Ascuas +2")
+      // nombre encima del activo (con un vínculo: "Ascuas +2"); en táctil, encima de la cuadrícula
       if (on) {
-        ctx.font = F(700, 10);
+        ctx.font = F(700, touch ? 12 : 10);
         ctx.textAlign = 'center';
         ctx.fillStyle = fused ? BOND : col;
-        ctx.fillText(fused ? m.name + ' +' + (g.length - 1) : m.name, x + S / 2, y - 7);
+        ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.6)';
+        const nm = fused ? m.name + ' +' + (g.length - 1) : m.name;
+        const nx = touch ? sx + totalW / 2 : x + S / 2, ny = touch ? gy - 8 : y - 7;
+        if (touch) ctx.strokeText(nm, nx, ny);
+        ctx.fillText(nm, nx, ny);
       }
     }
 
     // ---------- vínculo guardado (aún no hay dos movimientos sueltos) ----------
     if (pl.bonds > 0) {
-      const bx = sx + totalW + 12, by = sy + S / 2 - 12;
+      // PC: a la derecha de la fila. Táctil: a la izquierda del objeto.
+      const bx = touch ? sx - S - 18 - 34 : sx + totalW + 12, by = sy + S / 2 - 12;
       G.Icons.draw(ctx, 'bond', bx, by, 24);
       if (pl.bonds > 1) {
         ctx.font = F(800, 10);
@@ -363,13 +394,14 @@ G.HUD = (() => {
       G.Touch.addButton(bx, by, bs, bs, () => G.Game.togglePause(), 8);
     }
 
-    // pista de controles
-    if (st.time < 14) {
-      ctx.font = F(600, 10);
+    // pista de controles (en táctil, más grande, por encima de la barra de inicio y sólo al empezar)
+    if (st.time < (touch ? 10 : 14)) {
+      ctx.font = F(600, touch ? 12 : 10);
       ctx.textAlign = 'center';
-      ctx.fillStyle = 'rgba(180,200,230,.55)';
+      ctx.fillStyle = touch ? 'rgba(200,215,240,.75)' : 'rgba(180,200,230,.55)';
       ctx.fillText(touch ? 'Arrastra el dedo para moverte  ·  toca un ataque para cambiarlo'
-                         : 'WASD moverse  ·  1-4 / Q / E o clic en un ataque para cambiarlo  ·  Esc pausa', w / 2, h - 4);
+                         : 'WASD moverse  ·  1-4 / Q / E o clic en un ataque para cambiarlo  ·  Esc pausa',
+                   touch ? (w - totalW - 30) / 2 : w / 2, touch ? h - Math.max(14, sa.bottom + 8) : h - 4);
     }
 
     ctx.restore();

@@ -7,6 +7,7 @@
  *   calm        true/false                        menos sacudidas y destellos
  *   fps         true/false                        contador de FPS
  *   stick       0.8 | 1 | 1.25                    tamaño del joystick táctil
+ *   zoom        null | 's' | 'm' | 'l'            tamaño de la vista (null: 'm' en táctil, 's' en PC)
  *   rwCoins / rwTickets / rwXp / rwShiny   1..10  multiplicadores de recompensas
  *               (versión local: monedas, tickets, experiencia y probabilidad de shiny)
  *
@@ -16,7 +17,7 @@
 G.Settings = (() => {
   const KEY = 'ps.settings';
   const DEF = { quality: 'auto', dmgNumbers: true, calm: false, fps: false, stick: 1,
-               rwCoins: 1, rwTickets: 1, rwXp: 1, rwShiny: 1 };
+               zoom: null, rwCoins: 1, rwTickets: 1, rwXp: 1, rwShiny: 1 };
   let s = Object.assign({}, DEF);
   try { Object.assign(s, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { /* nada */ }
   const fns = new Set();
@@ -56,6 +57,9 @@ G.Settings = (() => {
     get all() { return Object.assign({}, s); },
     get fx() { return s.quality === 'auto' ? autoLevel : s.quality === 'high' ? 2 : s.quality === 'mid' ? 1 : 0; },
     get autoLevel() { return autoLevel; },
+    /** Tamaño de la vista: 's' como el original, 'm' ×1,3 y 'l' ×1,6 (en táctil, 'm' por defecto). */
+    get zoomKey() { return ['s', 'm', 'l'].includes(s.zoom) ? s.zoom : touchy ? 'm' : 's'; },
+    get zoom() { return { s: 1, m: 1.3, l: 1.6 }[this.zoomKey]; },
     get touch() { return touchy; }
   };
 })();

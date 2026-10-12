@@ -536,6 +536,8 @@ G.I18n.add({
     'On iPhone, Safari does not let websites go fullscreen. Tap Share and then "Add to Home Screen": opening the game from that icon plays it fullscreen.',
   // ---------------- versión local: Ajustes > Recompensas ----------------
   'Recompensas': 'Rewards', 'Monedas': 'Coins', 'Fuente china:': 'Chinese font:',
+  'Tamaño de la vista': 'View size', 'Pequeña': 'Small', 'Mediana': 'Medium',
+  'Más grande: el Pokémon y los enemigos se ven mayores, pero ves menos mapa alrededor.': 'Bigger: Pokémon and enemies look larger, but you see less of the map around you.',
   'Multiplica lo que ganas jugando. Se guarda en este dispositivo y vale desde la próxima recompensa.':
     'Multiplies what you earn by playing. Saved on this device; applies from the next reward.',
   'Monedas al acabar la partida y premios de misiones y logros.': 'Coins at the end of a run, plus mission and achievement rewards.',

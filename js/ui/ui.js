@@ -285,3 +285,17 @@ G.UI = (() => {
   return { $, show, hide, hideAll, isOpen, chrome, refreshCoins, toast, typeChips, stars, confirmDelete,
            sprite, spriteCanvas, tick, initChrome, soundControls };
 })();
+
+/* Versión local: en pantallas bajas, avisar de que una caja sigue hacia abajo (clase .more,
+ * difumina el borde de abajo). Se revisa cada medio segundo y al desplazar. */
+(() => {
+  const SEL = '.scr:not(.hidden) .box, .scr:not(.hidden) .set-body, .scr:not(.hidden) .goals-body, .scr:not(.hidden) .news-body';
+  function check() {
+    for (const el of document.querySelectorAll(SEL)) {
+      if (el.id === 'dex-detail' || el.closest('#dex-detail')) continue;
+      el.classList.toggle('more', el.scrollHeight - el.scrollTop - el.clientHeight > 12);
+    }
+  }
+  setInterval(check, 500);
+  document.addEventListener('scroll', check, true);
+})();
