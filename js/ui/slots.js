@@ -176,9 +176,11 @@ G.Slots = (() => {
     // --- marcador ---
     R(36, 100, 90, 16, C.dark);
     R(37, 101, 88, 14, C.led);
-    ctx.font = '700 8px Pixelify,"Segoe UI",sans-serif';
+    // En chino, a 8 px los caracteres no se leen: 11 px es el tamaño de diseño de la fuente (Cubic 11).
+    const zh = G.I18n.lang === 'zh';
+    ctx.font = (zh ? '700 11px' : '700 8px') + ' Pixelify,"Segoe UI",sans-serif';
     ctx.fillStyle = st.ledCol || C.bulbOn;
-    if (!st.frenzy || Math.floor(t * 10) % 2 === 0) ctx.fillText(st.led, 81, 111);
+    if (!st.frenzy || Math.floor(t * 10) % 2 === 0) ctx.fillText(st.led, 81, zh ? 112 : 111);
     // Botoncitos decorativos.
     R(132, 102, 8, 6, C.trim); R(132, 108, 8, 2, C.trimD);
     R(22, 102, 8, 6, '#5fe08a'); R(22, 108, 8, 2, '#2f9a52');
