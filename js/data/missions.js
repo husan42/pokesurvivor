@@ -41,6 +41,8 @@ G.MissionDefs = (() => {
       text: n => `Derrota a ${n.toLocaleString('es')} Pokémon` },
     { id: 'wrift', ev: 'rift', goals: [1, 2], reward: { t10: 1, coins: 1000 },
       text: n => (n === 1 ? 'Gana una pelea en una grieta' : `Gana ${n} peleas en grietas`) },
+    { id: 'wraid', ev: 'raid', goals: [1, 3], reward: { t10: 1, coins: 1000 },
+      text: n => (n === 1 ? 'Gana una incursión' : `Gana ${n} incursiones`) },
     { id: 'wboss', ev: 'kill', match: d => d.boss, goals: [4, 6], reward: { t10: 1, coins: 900 },
       text: n => `Derrota a ${n} jefes` },
     { id: 'wsurvive', ev: 'runEnd', mode: 'max', value: min, goals: [12, 15], reward: { t10: 1, coins: 1000 },

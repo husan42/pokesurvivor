@@ -961,3 +961,15 @@ body.touch .gen-tab { min-height: 38px; }
   .raid-main { grid-template-columns: 1fr; }
   .raid-stage canvas { height: 160px; width: auto; }
 }
+.raid-sub { margin: 12px 0 6px; font-size: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.raid-practice { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.raid-pick { flex: 0 0 auto; position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 78px;
+  padding: 4px 6px; border-radius: 10px; border: 2px solid rgba(244,248,255,.18); background: rgba(0,0,0,.2); color: inherit; font: inherit; cursor: pointer; }
+.raid-pick.on { border-color: var(--gold); background: rgba(255,210,63,.14); }
+.raid-pick small { font-size: 11px; max-width: 84px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.raid-pick i { position: absolute; top: 2px; right: 5px; font-style: normal; font-size: 10px; color: var(--gold); }
+.raid-tabs button { min-height: 32px; }
+.raid-board { display: grid; gap: 4px; font-size: 14px; }
+.raid-row { display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; padding: 4px 8px; border-radius: 8px; background: rgba(0,0,0,.2); }
+.raid-row.me { background: rgba(255,210,63,.16); }
+.raid-row em { font-style: normal; color: var(--gold); }

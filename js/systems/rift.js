@@ -206,7 +206,8 @@ G.Rift = (() => {
     if (!arena || arena.phase !== 'fight') return;
     arena.phase = 'won'; arena.endT = arena.raid ? 3 : 5;
     arena.wonAt = arena.t;
-    G.Progress.event('rift', { type: arena.type });
+    if (arena.raid) G.Progress.event('raid', { group: G.Coop.active, secs: Math.floor(arena.t) });
+    else G.Progress.event('rift', { type: arena.type });
     if (!arena.raid) G.Pickups.pullAll();
     G.Spawner.say('¡Has vencido a ' + G.DEX_BY[arena.dex].name + '! Recoge el premio…', 3.4, true);
     G.Audio.sfx('legend');

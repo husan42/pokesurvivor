@@ -102,6 +102,13 @@ G.Raid = (() => {
   /** Fin de la incursión (en cada dispositivo): premios y resumen. */
   function finish(win, a) {
     const info = rewards(win, a);
+    // Ranking: sólo el legendario de la semana. En grupo lo sube el anfitrión, con todos.
+    if (win && a.weekly && (!G.Coop.active || G.Coop.isHost)) {
+      const ms = G.Coop.active ? G.Coop.members.map(m => ({ uid: m.uid, name: m.name, dex: m.dex })) : null;
+      G.RaidRank.submit(a.week, a.dex, info.secs, ms).then(r => {
+        if (r && r.better) G.UI.toast('¡Nueva mejor marca en el ranking de la incursión! ' + G.U.mmss(r.t));
+      });
+    }
     G.Game.endRun(!win, { raid: info });
   }
 

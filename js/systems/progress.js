@@ -148,6 +148,11 @@ G.Progress = (() => {
         S.riftWins = (S.riftWins || 0) + 1;
         if (d.type) { s.arenas = s.arenas || {}; s.arenas[d.type] = s.arenas[d.type] || Date.now(); }
         break;
+      case 'raid':          // incursión ganada (raid.js)
+        S.raidWins = (S.raidWins || 0) + 1;
+        if (d.group) S.raidGroupWins = (S.raidGroupWins || 0) + 1;
+        if (d.secs && (!S.raidFastest || d.secs < S.raidFastest)) S.raidFastest = d.secs;
+        break;
       case 'evolve':
         S.evolutions = (S.evolutions || 0) + 1;
         s.evoMoves = s.evoMoves || {}; s.evoMoves[d.move] = s.evoMoves[d.move] || Date.now();

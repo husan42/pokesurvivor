@@ -14,7 +14,7 @@ G.AchDefs = (() => {
   const count = k => s => Object.keys(s[k] || {}).length;
 
   const CATS = [['coleccion', 'Colección'], ['supervivencia', 'Supervivencia'], ['combate', 'Combate'],
-                ['grietas', 'Grietas'], ['legendarios', 'Legendarios'], ['otros', 'Misiones y más']];
+                ['grietas', 'Grietas'], ['incursion', 'Incursiones'], ['legendarios', 'Legendarios'], ['otros', 'Misiones y más']];
 
   const LIST = [
     // ---------- colección ----------
@@ -55,6 +55,12 @@ G.AchDefs = (() => {
     // ---------- grietas ----------
     { id: 'rift1', cat: 'grietas', tier: 1, name: 'Al otro lado', desc: 'Gana tu primera pelea en una grieta.', value: st('riftWins'), goal: 1, reward: { t1: 3 }, title: 'Valiente' },
     { id: 'rift10', cat: 'grietas', tier: 2, name: 'Saltagrietas', desc: 'Gana 10 peleas en grietas.', value: st('riftWins'), goal: 10, reward: { t10: 1 } },
+    // ---------- incursiones (versión local, raid.js) ----------
+    { id: 'raid1', cat: 'incursion', tier: 1, name: 'Primera incursión', desc: 'Gana tu primera incursión.', value: st('raidWins'), goal: 1, reward: { t1: 3 } },
+    { id: 'raidG', cat: 'incursion', tier: 2, name: 'Trabajo en equipo', desc: 'Gana una incursión en grupo.', value: st('raidGroupWins'), goal: 1, reward: { t10: 1 } },
+    { id: 'raid10', cat: 'incursion', tier: 2, name: 'Cazador de legendarios', desc: 'Gana 10 incursiones.', value: st('raidWins'), goal: 10, reward: { t10: 1 }, title: 'Cazador' },
+    { id: 'raidFast', cat: 'incursion', tier: 3, name: 'Relámpago', desc: 'Gana una incursión en menos de 2 minutos.',
+      value: s => (s.stats && s.stats.raidFastest && s.stats.raidFastest <= 120 ? 1 : 0), goal: 1, reward: { t10: 2 }, title: 'Relámpago' },
     { id: 'arenas', cat: 'grietas', tier: 3, name: 'Viajero de grietas', desc: 'Gana en las 18 arenas (una por tipo).', value: count('arenas'), goal: 18, reward: { t10: 2 }, title: 'Viajero de grietas' },
 
     // ---------- legendarios (contador; los individuales se añaden abajo) ----------
