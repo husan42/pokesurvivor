@@ -120,7 +120,7 @@ G.HUD = (() => {
       bar(ctx, (w - bw) / 2, 70 + TOP, bw, 12, boss.hp / boss.maxHp, '#ffcb3d');
       ctx.font = F(800, 10);
       ctx.fillStyle = '#20160a';
-      ctx.fillText(boss.name.toUpperCase(), w / 2, 80 + TOP);
+      ctx.fillText(boss.name.toUpperCase() + (G.Raid.active && boss.legend !== false ? ' · FASE ' + G.Raid.phase : ''), w / 2, 80 + TOP);
     }
 
     // ---------- aviso ----------
@@ -216,7 +216,9 @@ G.HUD = (() => {
       ctx.textAlign = 'center';
       ctx.font = F(800, 12);
       ctx.fillStyle = '#d9c2ff';
-      ctx.fillText('GRIETA · ' + G.U.mmss(G.Rift.timeLeft), w / 2, (boss ? 98 : 76) + TOP);
+      const tl = G.Rift.timeLeft;
+      if (G.Raid.active && tl <= 30) ctx.fillStyle = Math.sin(performance.now() / 120) > 0 ? '#ff6b6b' : '#ffd0d5';
+      ctx.fillText((G.Raid.active ? 'INCURSIÓN · ' : 'GRIETA · ') + G.U.mmss(tl), w / 2, (boss ? 98 : 76) + TOP);
     }
 
     // Eventos: cuenta atrás, flecha al Pokémon perdido / a la marca y a los duendes.

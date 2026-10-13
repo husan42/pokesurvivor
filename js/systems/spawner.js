@@ -146,6 +146,18 @@ G.Spawner = (() => {
   }
 
   /** Unos cuantos de golpe desde un lado (al empezar una horda). */
+  /** Incursión (raid.js): n esbirros alrededor de (x, y), un poco más fuertes que al principio. */
+  function spawnNear(x, y, n, tBonus = 120) {
+    const t = G.Game.st.time + tBonus, np = Math.max(1, G.Game.everyone().length);
+    for (let i = 0; i < n; i++) {
+      const def = G.U.pick(G.Enemies.bagAt(t));
+      const a = Math.random() * 6.2832, d = G.U.rand(90, 170);
+      const e = new G.Enemy(def, x + Math.cos(a) * d, y + Math.sin(a) * d * 0.8, scaled(G.Enemies.scale(t), G.Coop.scaleHp(np) * hpK(t)));
+      e.dmg *= DMG_K; e.xp = Math.round(e.xp * XP_K);
+      G.EnemyMgr.add(e);
+    }
+  }
+
   function burst(n) {
     const base = Math.random() * 6.2832, target = anchor() || G.Game.player, t = G.Game.st.time;
     for (let i = 0; i < n && G.EnemyMgr.count < CAP + 10; i++) spawnOne(target, t, base + G.U.rand(-0.6, 0.6));
@@ -178,6 +190,6 @@ G.Spawner = (() => {
   /** Invitado en cooperativo: sólo corre el reloj del aviso. */
   function tickBanner(dt) { if (announceT > 0) announceT -= dt; }
 
-  return { reset, update, ahead, burst, tickBanner, banner, say, rate, SHINY_RATE, CAP,
+  return { reset, update, ahead, burst, spawnNear, tickBanner, banner, say, rate, SHINY_RATE, CAP,
            debugForceShiny(n = 1) { G.Guard.flag('debug'); forceShiny = n; } };
 })();

@@ -94,8 +94,10 @@ G.Game = (() => {
   // ---------------- run ----------------
 
   /** @param coop  { seed, host, members } para una partida en grupo */
-  function startRun(coop = null) {
+  /** @param raid  incursión en solitario (raid.js makeCfg); en grupo va en coop.raid */
+  function startRun(coop = null, raid = null) {
     holdBy = []; awayBy = null;
+    G.Raid.reset();
     const save = G.DB.save;
     const mon = G.DEX_BY[save.partner];
     const perks = G.Upgrades.perks(G.DB.upgradesOf(mon.dex));
@@ -138,6 +140,8 @@ G.Game = (() => {
       G.Coop.begin(coop, pl, coopApi);
       G.Social.setPlaying(true);
     }
+    const rc = coop ? coop.raid : raid;
+    if (rc) G.Raid.start(rc);
     G.Camera.x = pl.x; G.Camera.y = pl.y; G.Camera.shake = 0;
     // Hojas de sprites locales: el compañero y los primeros enemigos.
     G.Sprites.preload([mon.dex], 8000, pl.shiny);
@@ -279,8 +283,16 @@ G.Game = (() => {
     G.Audio.sfx('shinyGet');
   };
 
-  function endRun(dead = true) {
+  /** Sube n niveles de golpe (preparación de la incursión): salen n cartas seguidas. */
+  function grantLevels(n) {
+    if (!pl) return;
+    for (let i = 0; i < n; i++) pendingLevels += pl.gainXp((pl.xpNext - pl.xp) / (pl.xpMul || 1) + 0.01);
+  }
+
+  /** @param extra  { raid } fin de una incursión (raid.js): sus premios en vez de los de la run */
+  function endRun(dead = true, extra = null) {
     if (state === 'over' || !pl) return;
+    const raid = extra && extra.raid;
     const coop = !!pl.uid;                    // sólo las partidas en grupo le ponen uid
     const wasHost = !!pl.coopHost;
     const team = coop ? G.Coop.members.slice() : [];
@@ -298,36 +310,40 @@ G.Game = (() => {
       jefes: pl.bosses * 80,
       recogidas: pl.coins
     };
-    const coins = Math.round((parts.tiempo + parts.derrotados + parts.jefes + parts.recogidas) * mul * rw);
+    const coins = raid ? raid.coins + Math.round(pl.coins * mul * rw)
+                       : Math.round((parts.tiempo + parts.derrotados + parts.jefes + parts.recogidas) * mul * rw);
     // Anti-trampas (core/guard.js): si algo no cuadra, no cuenta para el ranking ni los récords.
     const clean = G.Guard.end();
-    const record = clean && time > save.stats.bestTime;
+    const record = !raid && clean && time > save.stats.bestTime;
 
     save.coins += coins;
     bankTickets(false);
     save.stats.runs++;
     save.stats.totalKills += pl.kills;
-    if (clean) {
+    if (clean && !raid) {
       save.stats.bestTime = Math.max(save.stats.bestTime, Math.floor(time));
       if (coop) save.stats.bestGroupTime = Math.max(save.stats.bestGroupTime || 0, Math.floor(time));
       save.stats.bestLevel = Math.max(save.stats.bestLevel, pl.level);
     }
     save.stats.coinsEarned += coins;
-    G.Progress.event('runEnd', { time, level: pl.level, coins: pl.coins, types: pl.mon.types, group: coop });
+    if (!raid) G.Progress.event('runEnd', { time, level: pl.level, coins: pl.coins, types: pl.mon.types, group: coop });
     G.Progress.checkAch();
     G.DB.commit();
     if (G.Social.me) G.Social.publishProfile();
 
     // Ranking: en solitario cada uno lo suyo; en grupo lo sube el anfitrión.
     const mark = { t: Math.floor(time), lv: pl.level, kills: pl.kills };
-    if (!clean) G.UI.toast('Esta partida no cuenta para el ranking: se ha detectado algo raro');
+    if (raid) { /* la incursión tiene su propio ranking (fase 2) */ }
+    else if (!clean) G.UI.toast('Esta partida no cuenta para el ranking: se ha detectado algo raro');
     else if (!coop) G.Ranking.submitSolo(Object.assign(mark, { dex: pl.dex, shiny: pl.shiny }));
     else if (wasHost) G.Ranking.submitGroup(Object.assign(mark, { members: team }));
 
     G.RunUI.showOver({
-      dead, time, level: pl.level, kills: pl.kills, bosses: pl.bosses, coins, record, t1: pl.t1, t10: pl.t10,
+      dead, time, level: pl.level, kills: pl.kills, bosses: pl.bosses, coins, record, raid,
+      t1: pl.t1 + (raid ? raid.t1 : 0), t10: pl.t10 + (raid ? raid.t10 : 0),
       moves: pl.moves, caught,
-      breakdown: Object.entries(parts).filter(([, v]) => v).map(([k, v]) => `${k} ${v}`).join(' · ') +
+      breakdown: raid ? (raid.win ? 'victoria ' + raid.coins : 'daño ' + raid.coins) + (pl.coins ? ' · recogidas ' + pl.coins : '') :
+                 Object.entries(parts).filter(([, v]) => v).map(([k, v]) => `${k} ${v}`).join(' · ') +
                  (mul > 1 ? ` · ×${mul.toFixed(2)} Fortuna` : '') + (rw !== 1 ? ` · ×${rw} Recompensas` : '')
     }, () => { pl = null; G.Flow.afterRun(); });
   }
@@ -336,6 +352,8 @@ G.Game = (() => {
 
   function maybeLevelUp() {
     if (pendingLevels <= 0 || state !== 'playing') return;
+    // Incursión ya decidida: no más cartas (la pantalla de nivel pararía el final).
+    if (G.Raid.active && G.Rift.arena && G.Rift.arena.phase !== 'fight') { pendingLevels = 0; return; }
     if (G.Coop.active) {
       // En grupo, las cartas salen a la vez para todos y se espera a que elijan.
       if (G.Coop.players().every(p => p.dead)) return;
@@ -594,8 +612,9 @@ G.Game = (() => {
     G.World.update(dt, G.Camera);
 
     const all = everyone();
-    if (!coop || G.Coop.isHost) { G.Path.update(dt, all); G.Spawner.update(dt, all, time); }
-    else G.Spawner.tickBanner(dt);
+    // Incursión: sin oleadas normales (los esbirros los pone raid.js).
+    if ((!coop || G.Coop.isHost) && !G.Raid.active) { G.Path.update(dt, all); G.Spawner.update(dt, all, time); }
+    else { if (!coop || G.Coop.isHost) G.Path.update(dt, all); G.Spawner.tickBanner(dt); }
     G.EnemyMgr.update(dt, all);
     G.EnemyMgr.rebuildGrid();
     G.Combat.tick(dt, pl, time);
@@ -606,7 +625,7 @@ G.Game = (() => {
     G.Hazards.update(dt);
     G.Interact.update(dt, pl);
     G.Rift.update(dt, pl, time);
-    G.Events.update(dt, all, time);
+    if (!G.Raid.active) G.Events.update(dt, all, time);
     G.Weather.update(dt, time, pl);
     G.FX.update(dt);
 
@@ -799,7 +818,7 @@ G.Game = (() => {
   })();
 
   return {
-    init, startRun, everyone, levelXp, flash, offerBond,
+    init, startRun, everyone, levelXp, flash, offerBond, grantLevels, endRun,
     /** Para pruebas: salta el reloj de la run. */
     debugTime(t) { G.Guard.flag('debug'); time = t; },
     /** Para grabar vídeos: cámara lenta (0,5 = mitad de velocidad). */
@@ -877,6 +896,7 @@ G.Flow = {
   startCoop(cfg) {
     if (G.Game.state !== 'ui' || !G.Social.room) return;
     G.LobbyUI.close();
+    G.UI.hide('scr-raid');
     G.Game.startRun(cfg);
   }
 };

@@ -936,3 +936,28 @@ body.touch .menu-item { min-height: 40px; }
 }
 
 body.touch .gen-tab { min-height: 38px; }
+
+/* ============ incursión (raid-ui.js) ============ */
+.menu-item.raid { color: #e2d0ff; }
+.raid-box { width: min(760px, 100%); }
+.raid-main { display: grid; grid-template-columns: 230px 1fr; gap: 16px; align-items: center; margin-top: 6px; }
+.raid-stage { display: flex; justify-content: center; align-items: flex-end; border-radius: 12px; min-height: 180px;
+  background: radial-gradient(circle at 50% 60%, rgba(180,138,255,.35), transparent 65%), linear-gradient(160deg, #2a1550, #10204f); }
+.raid-info h3 { font-size: 26px; color: var(--gold); margin-bottom: 4px; }
+#raid-types { margin-bottom: 6px; }
+.raid-rewards { display: grid; gap: 4px; font-size: 14px; }
+.raid-rewards img { vertical-align: middle; }
+.raid-rewards .muted { color: var(--muted); font-size: 13px; }
+.raid-over b { display: block; margin: 2px 0; }
+#over-raid-mon { display: flex; justify-content: center; }
+@media (max-height: 520px) {
+  .raid-main { grid-template-columns: 170px 1fr; gap: 10px; }
+  .raid-stage { min-height: 140px; }
+  .raid-stage canvas { height: 140px; width: auto; }
+  .raid-info h3 { font-size: 20px; }
+  .raid-rewards { font-size: 12px; gap: 2px; }
+}
+@media (orientation: portrait) and (max-width: 600px) {
+  .raid-main { grid-template-columns: 1fr; }
+  .raid-stage canvas { height: 160px; width: auto; }
+}

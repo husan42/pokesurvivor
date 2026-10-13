@@ -108,6 +108,8 @@
         this.showHurt(d, color, dirX, dirY, eff);
         return;
       }
+      // Incursión: invulnerable un momento al cambiar de fase.
+      if (this.invulnT > 0) { G.FX.dmgText(this.x, this.y - this.bodyH - 4, 'INMUNE', '#c9d6ee'); this.flash = 0.05; return; }
       // Escudo: absorbe primero.
       if (this.shield > 0) {
         const a = Math.min(this.shield, d);
@@ -421,8 +423,23 @@
     bossMove(dt, pl, dist, dx, dy, spd) {
       if (!this.ai) this.bossInit();
       const ai = this.ai;
-      if (!ai.fury && this.hp < this.maxHp * 0.5) this.enrage();
-      const k = ai.fury ? 1.25 : 1;
+      if (this.raid) {
+        // Incursión (raid.js): 3 fases por vida (70 % y 35 %); al cambiar, un momento
+        // invulnerable con onda expansiva y aparecen esbirros. En la fase 3, enfurecido.
+        if (this.invulnT > 0) { this.invulnT -= dt; return [0, 0, 'Idle']; }
+        const f = this.hp > this.maxHp * 0.7 ? 1 : this.hp > this.maxHp * 0.35 ? 2 : 3;
+        if (f > (this.raidPhase || 1)) {
+          this.raidPhase = f; ai.cast = null; ai.cd = 1.2;
+          this.invulnT = 1.6;
+          if (f === 3 && !ai.fury) this.enrage();
+          G.Hazards.add({ kind: 'zone', x: this.x, y: this.y, r: 150 + this.r, delay: 1.2, dmg: this.dmg * 0.8, type: this.atkType,
+                          color: G.U.TYPE_COLOR[this.atkType] || '#ff7a9e' });
+          this.anim.play('Charge', { speed: 1 });
+          G.Raid.onPhase(f, this);
+          return [0, 0, 'Idle'];
+        }
+      } else if (!ai.fury && this.hp < this.maxHp * 0.5) this.enrage();
+      const k = (ai.fury ? 1.25 : 1) * (this.berserk ? 1.6 : 1);
       if (ai.cast) return this.bossCast(dt, pl);
       ai.modeT -= dt; ai.cd -= dt * k;
       // Alterna siempre: en su distancia favorita está más rato (7-9 s) que en la otra (4-5 s).
@@ -535,7 +552,9 @@
       const ai = this.ai;
       ai.cast = null;
       ai.cd = G.U.rand(1.3, 2.0);
-      if (ai.fury && Math.random() < 0.35) ai.cd = 0.3;    // encadena otro
+      // Encadena otro: enfurecido 35 %; en la incursión, más cuanto más avanzada la fase.
+      const chain = this.raid ? [0.15, 0.5, 0.7][(this.raidPhase || 1) - 1] : ai.fury ? 0.35 : 0;
+      if (Math.random() < chain) ai.cd = 0.3;
       return [0, 0, 'Idle'];
     }
 

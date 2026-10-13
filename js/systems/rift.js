@@ -34,6 +34,8 @@ G.Rift = (() => {
   // ---------------- grieta en el mapa ----------------
 
   function update(dt, pl, time) {
+    // Incursión: sólo la arena (sin grietas al azar).
+    if (G.Raid.active) { if (arena) arenaTick(dt, pl); return; }
     if (rift) {
       rift.t += dt;
       rift.ttl -= dt;
@@ -134,6 +136,13 @@ G.Rift = (() => {
     G.Spawner.say('Has entrado en la grieta…', 2.4, true);
   }
 
+  /** Incursión (raid.js): la arena con su legendario, sin volver al mapa al acabar. */
+  function startRaid(cfg) {
+    if (G.Coop.isHost) G.Coop.broadcast(['arena', cfg]);
+    begin(cfg);
+    spawnLegend();
+  }
+
   function spawnLegend() {
     const mon = G.DEX_BY[arena.dex];
     const t = G.Game.st.time;
@@ -141,7 +150,7 @@ G.Rift = (() => {
     const ts = TS();
     const def = {
       dex: mon.dex, name: mon.name,
-      hp: Math.round((3200 + t * 9) * G.Coop.scaleHp(n) * (n > 1 ? 1.4 : 1)),
+      hp: arena.raid ? G.Raid.bossHp(n) : Math.round((3200 + t * 9) * G.Coop.scaleHp(n) * (n > 1 ? 1.4 : 1)),
       spd: Math.round(G.U.clamp(48 + (mon.spd - 78) * 0.6, 48, 105)),
       dmg: Math.round(36 + t / 20), xp: Math.round(500 + t * 1.2),
       behavior: mon.types.some(x => ['psychic', 'electric', 'ghost', 'fairy', 'fire', 'water', 'ice', 'dragon'].includes(x)) ? 'ranged' : 'charger',
@@ -153,6 +162,7 @@ G.Rift = (() => {
     // rocas, tus disparos no podrían alcanzarle (bug de Celebi).
     e.flying = false;
     if (arena.shiny) e.makeShiny();
+    if (arena.raid) { e.raid = true; e.raidPhase = 1; }
     G.EnemyMgr.add(e);
     arena.bossId = e.id;
     G.Spawner.say('¡' + e.name + (e.shiny ? ' shiny' : '') + ' te esperaba en la grieta!', 3.2);
@@ -179,22 +189,29 @@ G.Rift = (() => {
       if (!boss || boss.dead) { G.Coop.isHost && G.Coop.broadcast(['aw']); won(); return; }
       const allDown = G.Game.everyone().every(p => p.dead);
       downT = allDown ? downT + dt : 0;
-      if (downT > 1.4 || arena.t > ARENA_TIME) { G.Coop.isHost && G.Coop.broadcast(['al']); lost(); }
+      const limit = arena.time || ARENA_TIME;
+      // Incursión: los últimos 30 s, furia.
+      if (arena.raid && !boss.berserk && arena.t > limit - 30) { boss.berserk = true; G.Raid.onBerserk(); }
+      if (downT > 1.4 || arena.t > limit) { G.Coop.isHost && G.Coop.broadcast(['al']); lost(); }
       return;
     }
     arena.endT -= dt;
-    if (arena.endT <= 0) finish();
+    if (arena.endT <= 0) {
+      if (arena.raid) { const a = arena; arena = null; G.Raid.finish(a.phase === 'won', a); }
+      else finish();
+    }
   }
 
   function won() {
     if (!arena || arena.phase !== 'fight') return;
-    arena.phase = 'won'; arena.endT = 5;
+    arena.phase = 'won'; arena.endT = arena.raid ? 3 : 5;
+    arena.wonAt = arena.t;
     G.Progress.event('rift', { type: arena.type });
-    G.Pickups.pullAll();
+    if (!arena.raid) G.Pickups.pullAll();
     G.Spawner.say('¡Has vencido a ' + G.DEX_BY[arena.dex].name + '! Recoge el premio…', 3.4, true);
     G.Audio.sfx('legend');
     const pl = G.Game.player;
-    if (pl) {
+    if (pl && !arena.raid) {
       pl.bonds++;
       G.FX.dmgText(pl.x, pl.y - pl.bodyH - 10, '¡Vínculo!', '#ff8ad8', true);
       G.FX.ring(pl.x, pl.y, 8, 90, '#ff8ad8', 0.7, 5);
@@ -203,8 +220,8 @@ G.Rift = (() => {
 
   function lost() {
     if (!arena || arena.phase !== 'fight') return;
-    arena.phase = 'lost'; arena.endT = 1.2;
-    G.Spawner.say('La grieta os ha expulsado…', 2.6, true);
+    arena.phase = 'lost'; arena.endT = arena.raid ? 2 : 1.2;
+    G.Spawner.say(arena.raid ? 'La incursión ha fracasado…' : 'La grieta os ha expulsado…', 2.6, true);
     G.Audio.sfx('back');
   }
 
@@ -264,10 +281,10 @@ G.Rift = (() => {
   }
 
   return {
-    reset, update, drawable, onEvent, enterRequest() { if (!arena) start(); },
+    reset, update, drawable, onEvent, startRaid, enterRequest() { if (!arena) start(); },
     get rift() { return rift; }, get arena() { return arena; },
     get inArena() { return !!arena; },
-    get timeLeft() { return arena ? Math.max(0, ARENA_TIME - arena.t) : 0; },
+    get timeLeft() { return arena ? Math.max(0, (arena.time || ARENA_TIME) - arena.t) : 0; },
     debugOpen() { G.Guard.flag('debug'); open(); },
     /** Para pruebas: arena de un tipo ya. */
     debugArena(type) { G.Guard.flag('debug'); start(type); },

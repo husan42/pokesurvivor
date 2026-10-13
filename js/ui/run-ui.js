@@ -102,9 +102,24 @@ G.RunUI = (() => {
     return true;
   }
 
+  /** Incursión: legendario, tiempo y premio especial. */
+  function raidBlock(rd) {
+    const name = G.DEX_BY[rd.dex].name;
+    const prize = rd.legend === 'new' ? '¡' + name + ' se une a tu equipo!'
+                : rd.legend === 'shiny' ? '¡' + name + ' shiny se une a tu equipo!'
+                : rd.legend === 'dupe' ? name + ' ya estaba en tu equipo: ticket ×10'
+                : rd.win ? 'Esta vez ' + name + ' no se ha unido a tu equipo' : '';
+    return `<div style="grid-column:1/-1;text-align:center" class="raid-over">
+      <div id="over-raid-mon"></div>
+      <b class="${rd.legend ? 'gold' : ''}">${prize}</b>
+      ${rd.win ? `<div style="font-size:13px;color:var(--muted)">Tiempo ${G.U.mmss(rd.secs)}${rd.weekFirst ? '<span> · premio semanal</span>' : ''}</div>` : ''}
+    </div>`;
+  }
+
   function showOver(r, onBack) {
-    $('over-title').textContent = r.dead ? 'Has caído…' : 'Run terminada';
-    $('over-stats').innerHTML = `
+    const rd = r.raid;
+    $('over-title').textContent = rd ? (rd.win ? '¡Incursión superada!' : 'La incursión ha fracasado') : r.dead ? 'Has caído…' : 'Run terminada';
+    $('over-stats').innerHTML = (rd ? raidBlock(rd) : '') + `
       <div><span>Tiempo</span><b>${G.U.mmss(r.time)}</b></div>
       <div><span>Nivel</span><b>${r.level}</b></div>
       <div><span>Derrotados</span><b>${r.kills}</b></div>
@@ -124,6 +139,10 @@ G.RunUI = (() => {
         <p>¿Te está gustando PokéSurvivor? Lo hago yo solo y los servidores cuestan dinero. Si quieres, puedes ayudarme a mantenerlo en línea.</p>
         <a class="btn small gold" href="${G.Funding.url}" target="_blank" rel="noopener">${G.Icons.html('heart', 14)} Apoyar en Ko-fi</a>
       </div>` : ''}`;
+    if (rd) {
+      const box = $('over-raid-mon');
+      if (box) box.appendChild(G.UI.spriteCanvas(rd.dex, 120, 96, { lively: true, scale: 2, shiny: rd.legend === 'shiny' }));
+    }
     const ask = $('over-ask');
     if (ask) ask.querySelector('.x').onclick = () => ask.remove();
     $('btn-again').onclick = onBack;

@@ -172,6 +172,7 @@
     <div class="box">
       <div class="menu-list">
         <button class="menu-item play" data-go="play">Jugar<small>Entra en la mazmorra</small></button>
+        <button class="menu-item raid" data-go="raid">Incursión<small>Juntos contra un legendario</small></button>
         <button class="menu-item" data-go="dex">Pokémon<small id="menu-dex-count">Tu colección</small></button>
         <button class="menu-item" data-go="upgrades">Mejoras<small>Haz más fuerte cada run</small></button>
         <button class="menu-item" data-go="gacha">Gacha<small>9 regiones · Pokémon y shinies</small></button>
@@ -338,6 +339,27 @@
     </form>
     <p id="fr-msg" class="note"></p>
     <div id="fr-list" class="fr-list"></div>
+  </div>
+</section>
+
+<!-- ====== Incursión (versión local, raid.js / raid-ui.js) ====== -->
+<section id="scr-raid" class="scr dim hidden">
+  <div class="box wide raid-box">
+    <div class="row between"><h2>Incursión</h2><button class="btn small ghost" data-back>Volver</button></div>
+    <div class="raid-main">
+      <div class="raid-stage" id="raid-stage"></div>
+      <div class="raid-info">
+        <h3 id="raid-name"></h3>
+        <div id="raid-types"></div>
+        <p class="sub" id="raid-week"></p>
+        <div id="raid-rewards" class="raid-rewards"></div>
+        <div class="row" style="margin-top:12px">
+          <button id="raid-solo" class="btn gold grow" data-sfx="confirm">Empezar en solitario</button>
+          <button id="raid-group" class="btn gold grow hidden" data-sfx="confirm">Empezar con la sala</button>
+        </div>
+        <p class="note" id="raid-note"></p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -522,6 +544,6 @@
 </section>
 
 <!-- datos generados -->
-<script defer src="js/app.min.js?v=b2938f55cc"></script>
+<script defer src="js/app.min.js?v=16ac302572"></script>
 </body>
 </html>

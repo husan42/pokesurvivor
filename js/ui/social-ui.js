@@ -252,19 +252,20 @@
         : connecting ? 'Conectando con tus amigos…' : 'La partida empieza para todos a la vez.';
     }
 
-    function start() {
+    /** @param extra  p. ej. { raid } para empezar una incursión con la sala */
+    function start(extra) {
       const room = G.Social.room;
       if (!room || !room.isHost || room.members.length < 2) return;
-      const cfg = {
+      const cfg = Object.assign({
         k: 'start', seed: Math.floor(Math.random() * 1e6), host: room.host,
         members: room.members.map(m => ({ uid: m.uid, name: m.name, dex: m.dex, shiny: !!m.shiny }))
-      };
+      }, extra && extra.raid ? { raid: extra.raid } : {});
       G.Social.setOpen(false);
       G.Net.broadcast(cfg);
       G.Flow.startCoop(cfg);
     }
 
-    return { init, open, close, render };
+    return { init, open, close, render, start };
   })();
 
   // ======================= INVITACIONES =======================
