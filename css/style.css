@@ -67,7 +67,7 @@ input { font: inherit; }
 .scr.hidden { display: none; }
 /* Pantallas que se abren con la barra superior a la vista: empiezan debajo de ella. */
 @media (min-height: 521px) {
-  #scr-goals, #scr-dex, #scr-upgrades, #scr-gacha, #scr-friends, #scr-rank, #scr-lobby, #scr-profile { padding-top: 66px; }
+  #scr-goals, #scr-dex, #scr-upgrades, #scr-gacha, #scr-friends, #scr-rank, #scr-lobby, #scr-profile, #scr-raid { padding-top: 66px; }
 }
 .scr.dim { background: radial-gradient(circle at 50% 40%, rgba(10,20,50,.55), rgba(3,6,16,.88)); }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
@@ -973,3 +973,12 @@ body.touch .gen-tab { min-height: 38px; }
 .raid-row { display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; padding: 4px 8px; border-radius: 8px; background: rgba(0,0,0,.2); }
 .raid-row.me { background: rgba(255,210,63,.16); }
 .raid-row em { font-style: normal; color: var(--gold); }
+
+/* Vertical (iPhone, sobre todo añadido a la pantalla de inicio): nada debajo de la barra de estado,
+ * y las pantallas con la barra superior empiezan debajo de ella (antes "Volver" de la incursión
+ * quedaba tapado y no se podía pulsar). */
+@media (orientation: portrait) and (max-width: 600px) {
+  .scr { padding-top: max(10px, env(safe-area-inset-top)); padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+  #scr-goals, #scr-dex, #scr-upgrades, #scr-gacha, #scr-friends, #scr-rank, #scr-lobby, #scr-profile, #scr-raid {
+    padding-top: calc(62px + env(safe-area-inset-top)); }
+}

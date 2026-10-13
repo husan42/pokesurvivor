@@ -19,17 +19,13 @@ service cloud.firestore {
     match /saves/{uid} {
       allow read, delete: if signedIn() && me() == uid;
 
-      allow create: if signedIn()
+      // Versión local (servidor privado con contraseña de la casa): sin el anti-trampas de la
+      // partida. Con los multiplicadores de Ajustes > Recompensas y los premios de la incursión,
+      // saneSave/possibleSave rechazaban guardados legítimos y el juego volvía a la copia vieja
+      // de la nube (se perdían monedas, tickets y mejoras). Sólo: tu partida y con forma válida.
+      allow create, update: if signedIn()
         && me() == uid
-        && validSaveDoc()
-        && saneSave(request.resource.data.save)
-        && freshSave(request.resource.data.save);
-      allow update: if signedIn()
-        && me() == uid
-        && validSaveDoc()
-        && saneSave(request.resource.data.save)
-        && possibleSave(resource.data.save, request.resource.data.save,
-                        (request.time - resource.data.updatedAt).seconds());
+        && validSaveDoc();
     }
 
     // ---------- anti-trampas de la partida guardada ----------
