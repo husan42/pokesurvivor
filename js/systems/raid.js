@@ -3,7 +3,7 @@
  *
  * Una partida "incursión" empieza directamente en la arena de la grieta (rift.js) contra
  * un legendario con 3 fases (enemy.js, this.raid), de 1 a 4 jugadores:
- *   - preparación: 6 cartas de nivel nada más empezar (como a mitad de una run normal);
+ *   - preparación: 9 cartas de nivel nada más empezar (nivel 10);
  *   - 5 minutos; los últimos 30 s, furia; esbirros al cambiar de fase;
  *   - al acabar, ganes o pierdas, se termina la partida (no se vuelve al mapa).
  *
@@ -18,12 +18,31 @@
  * Red: el anfitrión decide (fases, furia, fin). Mensajes: 'raidp' fase · 'raidb' furia.
  */
 G.Raid = (() => {
-  const TIME = 300, ARENA_R = 11, PREP_LEVELS = 6;
+  const TIME = 300, ARENA_R = 11, PREP_LEVELS = 9;      // empiezas a nivel 10 (ajuste 13-10-2026)
+  const DMG_K = 0.7;                                    // daño del legendario y sus esbirros (ajuste 13-10-2026)
   const BASE_HP = 7000, NK = [1, 1.7, 2.3, 2.9];
   const CHANCE = 0.05, CHANCE_WEEK = 0.10;
-  let cfg = null, phase = 1;
+  let cfg = null, phase = 1, picked = false;
 
-  function reset() { cfg = null; phase = 1; }
+  function reset() { cfg = null; phase = 1; picked = false; }
+
+  /** Cada fotograma (game.js). Al acabar la preparación, si el movimiento activo es de cuerpo a
+   *  cuerpo o de apoyo, pasa al de distancia que más pega (sólo ataca el movimiento activo y el
+   *  legendario se pelea mejor desde lejos; se puede cambiar cuando quieras). */
+  function tick(pl) {
+    if (!cfg || picked || !pl || G.Game.state !== 'playing' || !G.Rift.inArena) return;
+    picked = true;
+    const FAR = ['projectile', 'nova', 'chain', 'meteor', 'cone', 'boomerang', 'beam'];
+    const cur = pl.slots[pl.active] && pl.slots[pl.active][0];
+    if (cur && FAR.includes(cur.kind)) return;
+    let best = -1, bv = -1;
+    pl.slots.forEach((g, i) => {
+      const m = g[0]; if (!m || !FAR.includes(m.kind)) return;
+      const v = (m.dmg || 0) * (m.count || 1) / (m.cd || 1);
+      if (v > bv) { bv = v; best = i; }
+    });
+    if (best >= 0) { pl.setActive(best); G.Spawner.say('Movimiento a distancia: ' + pl.slots[best][0].name, 2.4, true); }
+  }
 
   // ---------------- semana y legendario de la semana ----------------
 
@@ -150,8 +169,8 @@ G.Raid = (() => {
   }
 
   return {
-    reset, start, finish, onPhase, onBerserk, onEvent, bossHp, makeCfg, weekly, week, pool,
-    TIME, CHANCE, CHANCE_WEEK,
+    reset, start, finish, onPhase, onBerserk, onEvent, bossHp, makeCfg, weekly, week, pool, tick,
+    TIME, CHANCE, CHANCE_WEEK, DMG_K,
     get active() { return !!cfg; }, get cfg() { return cfg; }, get phase() { return phase; }
   };
 })();

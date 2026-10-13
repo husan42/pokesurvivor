@@ -162,7 +162,7 @@ G.Rift = (() => {
     // rocas, tus disparos no podrían alcanzarle (bug de Celebi).
     e.flying = false;
     if (arena.shiny) e.makeShiny();
-    if (arena.raid) { e.raid = true; e.raidPhase = 1; }
+    if (arena.raid) { e.raid = true; e.raidPhase = 1; e.dmg *= G.Raid.DMG_K; }
     G.EnemyMgr.add(e);
     arena.bossId = e.id;
     G.Spawner.say('¡' + e.name + (e.shiny ? ' shiny' : '') + ' te esperaba en la grieta!', 3.2);

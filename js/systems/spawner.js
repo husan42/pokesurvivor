@@ -153,7 +153,7 @@ G.Spawner = (() => {
       const def = G.U.pick(G.Enemies.bagAt(t));
       const a = Math.random() * 6.2832, d = G.U.rand(90, 170);
       const e = new G.Enemy(def, x + Math.cos(a) * d, y + Math.sin(a) * d * 0.8, scaled(G.Enemies.scale(t), G.Coop.scaleHp(np) * hpK(t)));
-      e.dmg *= DMG_K; e.xp = Math.round(e.xp * XP_K);
+      e.dmg *= DMG_K * G.Raid.DMG_K; e.xp = Math.round(e.xp * XP_K);
       G.EnemyMgr.add(e);
     }
   }

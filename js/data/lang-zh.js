@@ -1218,5 +1218,6 @@ G.I18n.add({
   "Gana 10 incursiones.": "打贏 10 場團體戰。",
   "Cazador": "獵人",
   "Relámpago": "閃電",
-  "Gana una incursión en menos de 2 minutos.": "在 2 分鐘內打贏一場團體戰。"
+  "Gana una incursión en menos de 2 minutos.": "在 2 分鐘內打贏一場團體戰。",
+  "Movimiento a distancia: {x}": "已切換到遠程招式：{x}"
 }, 'zh');

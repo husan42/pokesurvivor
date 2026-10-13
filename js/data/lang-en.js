@@ -599,5 +599,6 @@ G.I18n.add({
   "Gana 10 incursiones.": "Win 10 raids.",
   "Cazador": "Hunter",
   "Relámpago": "Lightning",
-  "Gana una incursión en menos de 2 minutos.": "Win a raid in under 2 minutes."
+  "Gana una incursión en menos de 2 minutos.": "Win a raid in under 2 minutes.",
+  "Movimiento a distancia: {x}": "Switched to a ranged move: {x}"
 });

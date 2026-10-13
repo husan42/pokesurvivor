@@ -259,7 +259,8 @@
       }
       if (this.poison > 0) {
         this.poisonT -= dt; this.poisonTick -= dt;
-        if (this.poisonTick <= 0) { this.poisonTick = 0.6; this.hurt(this.maxHp * 0.012 * this.poison + 1, '#d47cf0'); }
+        // (Incursión: 1/8 en el legendario; el 1,2 % de la vida máxima por carga lo mataba en ~6 s.)
+        if (this.poisonTick <= 0) { this.poisonTick = 0.6; this.hurt(this.maxHp * (this.raid ? 0.0015 : 0.012) * this.poison + 1, '#d47cf0'); }
         if (this.poisonT <= 0) this.poison = 0;
       }
       if (this.dead) return;

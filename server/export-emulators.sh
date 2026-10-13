@@ -16,4 +16,9 @@ mkdir -p backups
 day="backups/emu-data-$(date +%F).tar.gz"
 [ -f "$day" ] || tar czf "$day" emu-data
 ls -1t backups/emu-data-*.tar.gz | tail -n +15 | xargs -r rm -f
+# 每小時一份快照（保留 48 份＝2 天），出事時可以回到任何一個小時前
+mkdir -p backups/hourly
+hour="backups/hourly/emu-data-$(date +%F-%H).tar.gz"
+[ -f "$hour" ] || tar czf "$hour" emu-data
+ls -1t backups/hourly/emu-data-*.tar.gz | tail -n +49 | xargs -r rm -f
 echo "匯出完成 $(date '+%F %T')"

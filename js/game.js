@@ -626,6 +626,7 @@ G.Game = (() => {
     G.Interact.update(dt, pl);
     G.Rift.update(dt, pl, time);
     if (!G.Raid.active) G.Events.update(dt, all, time);
+    else G.Raid.tick(pl);
     G.Weather.update(dt, time, pl);
     G.FX.update(dt);
 
